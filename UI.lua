@@ -399,9 +399,9 @@ function library:CreateWindow(options)
 
             function ButtonFunctions:SetLock(state)
                 if state == true then
-                    options.Lock = true
+                    Locked = true
                 else
-                    options.Lock = false
+                    Locked = false
                 end
             end
 
