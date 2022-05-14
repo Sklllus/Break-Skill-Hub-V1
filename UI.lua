@@ -429,6 +429,16 @@ function library:CreateWindow(options)
                 Button.Text = newName
             end
 
+            --[
+            --SetCallback
+            --]
+
+            function ButtonFunctions:SetCallback(new, call)
+                call = new or function() end
+
+                options.Callback = call
+            end
+
             return ButtonFunctions
         end
 
