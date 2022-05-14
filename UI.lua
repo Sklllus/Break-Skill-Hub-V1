@@ -413,6 +413,10 @@ function library:CreateWindow(options)
                 return Locked
             end
 
+            function ButtonFunctions:Press()
+                Callback()
+            end
+
             return ButtonFunctions
         end
 
