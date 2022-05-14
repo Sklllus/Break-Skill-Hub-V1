@@ -348,7 +348,7 @@ function library:CreateWindow(options)
             Button.Parent = Scroll
             Button.BackgroundColor3 = Color3.fromRGB(110, 120, 200)
             Button.Position = UDim2.new(0, 0, 0.581250012, 0)
-            Button.Size = UDim2.new(0, 5340, 0, 34)
+            Button.Size = UDim2.new(0, 534, 0, 34)
             Button.AutoButtonColor = false
             Button.Font = Enum.Font.SourceSansBold
             Button.Text = ButtonName
