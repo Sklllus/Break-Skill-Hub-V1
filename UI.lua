@@ -402,8 +402,12 @@ function library:CreateWindow(options)
 
                 if Locked == false then
                     TweenService:Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
+
+                    Button.Text = ButtonName
                 else
                     TweenService:Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(200, 80, 80)}):Play()
+
+                    Button.Text = ButtonName .. " (Locked)"
                 end
 
                 return Locked
