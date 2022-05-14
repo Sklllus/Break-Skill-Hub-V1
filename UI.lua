@@ -398,11 +398,9 @@ function library:CreateWindow(options)
             --]
 
             function ButtonFunctions:SetLock(state)
-                if state == true then
-                    Locked = true
-                else
-                    Locked = false
-                end
+                Locked = state
+
+                return Locked
             end
 
             return ButtonFunctions
