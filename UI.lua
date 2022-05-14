@@ -437,6 +437,8 @@ function library:CreateWindow(options)
                 call = new or function() end
 
                 options.Callback = call
+
+                return options.Callback
             end
 
             return ButtonFunctions
