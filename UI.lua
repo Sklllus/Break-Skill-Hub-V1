@@ -394,11 +394,17 @@ function library:CreateWindow(options)
             local ButtonFunctions = {}
 
             --[
-            --Lock
+            --SetLock
             --]
 
             function ButtonFunctions:SetLock(state)
                 Locked = state
+
+                if Locked == false then
+                    TweenService:Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
+                else
+                    TweenService:Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(200, 80, 80)}):Play()
+                end
 
                 return Locked
             end
