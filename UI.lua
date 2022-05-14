@@ -353,7 +353,6 @@ function library:CreateWindow(options)
             Button.Font = Enum.Font.SourceSansBold
             Button.Text = ButtonName
             Button.TextColor3 = Color3.fromRGB(255, 255, 255)
-            Button.TextTransparency = 0
             Button.TextSize = 14
 
             ButtonCorner.CornerRadius = UDim.new(0, 3)
@@ -372,6 +371,16 @@ function library:CreateWindow(options)
 
                 TweenService:Create(Button, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
             end)
+
+            if Locked then
+                TweenService:Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(200, 100, 100)}):Play()
+
+                Button.Text = ButtonName .. " (Locked)"
+            else
+                TweenService:Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
+
+                Button.Text = ButtonName
+            end
 
             Button.MouseEnter:Connect(function()
                 TweenService:Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(140, 150, 225)}):Play()
