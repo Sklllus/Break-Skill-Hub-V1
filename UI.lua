@@ -427,9 +427,6 @@ function library:CreateWindow(options)
 
             function ButtonFunctions:SetName(newName)
                 Button.Text = newName
-                options.Name = newName
-
-                return newName
             end
 
             return ButtonFunctions
