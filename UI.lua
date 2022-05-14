@@ -353,6 +353,7 @@ function library:CreateWindow(options)
             Button.Font = Enum.Font.SourceSansBold
             Button.Text = ButtonName
             Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Button.TextTransparency = 0
             Button.TextSize = 14
 
             ButtonCorner.CornerRadius = UDim.new(0, 3)
