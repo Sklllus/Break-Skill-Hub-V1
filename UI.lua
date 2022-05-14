@@ -390,6 +390,22 @@ function library:CreateWindow(options)
                     TweenService:Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
                 end
             end)
+
+            local ButtonFunctions = {}
+
+            --[
+            --Lock
+            --]
+
+            function ButtonFunctions:SetLock(state)
+                if state == true then
+                    options.Lock = true
+                else
+                    options.Lock = false
+                end
+            end
+
+            return ButtonFunctions
         end
 
         return TabFunctions
