@@ -413,8 +413,23 @@ function library:CreateWindow(options)
                 return Locked
             end
 
+            --[
+            --Press
+            --]
+
             function ButtonFunctions:Press()
                 Callback()
+            end
+
+            --[
+            --SetName
+            --]
+
+            function ButtonFunctions:SetName(newName)
+                Button.Text = newName
+                options.Name = newName
+
+                return newName
             end
 
             return ButtonFunctions
