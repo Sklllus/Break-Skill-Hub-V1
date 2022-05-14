@@ -13,19 +13,18 @@ local TweenService = game:GetService("TweenService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local CoreGui = game:GetService("CoreGui")
 
-local function Dragify(frame)
+function Dragify(frame)
     local dragToggle = nil
+    local dragSpeed = .25
     local dragInput = nil
     local dragStart = nil
-    local startPos = nil
     local dragPos = nil
-    local dragSpeed = .25
 
     local function UpdateInput(input)
         local Delta = input.Position - dragStart
-        local Pos = UDim2.new(dragPos.X.Scale, dragPos.X.Offset + Delta.X, dragPos.Y.Scale, dragPos.Y.Offset + Delta.Y)
+        local Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
 
-        TweenService:Create(frame, TweenInfo.new(dragSpeed), {Position = dragPos}):Play()
+        game:GetService("TweenService"):Create(frame, TweenInfo.new(.25), {Position = Position}):Play()
     end
 
     frame.InputBegan:Connect(function(input)
@@ -190,11 +189,7 @@ function library:CreateWindow(options)
 
     Dragify(BackFrame)
 
-    local WindowFunctions = {
-        TabCount = 0,
-        Selected = {},
-        Flags = Flags
-    }
+    local WindowFunctions = {}
 
     --[
     --CreateTab
@@ -328,9 +323,7 @@ function library:CreateWindow(options)
             TweenService:Create(ChosenFrame, TweenInfo.new(0.2, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundTransparency = 0}):Play()
         end)
 
-        local TabFunctions = {
-            Flags = {}
-        }
+        local TabFunctions = {}
 
         --[
         --AddButton
