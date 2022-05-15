@@ -444,6 +444,10 @@ function library:CreateWindow(options)
             return ButtonFunctions
         end
 
+        --[
+        --AddToggle
+        --]
+
         function TabFunctions:AddToggle(options)
             local ToggleName = (options.Text or options.Name or options.Title) or "New Toggle"
             local ToggleState = (options.State or options.Value or options.Val) or false
@@ -500,9 +504,17 @@ function library:CreateWindow(options)
             TextLabel.TextSize = 14
             TextLabel.TextXAlignment = Enum.TextXAlignment.Left
 
+            if Locked then
+                TextLabel.Text = ToggleName .. " (Locked)"
+            end
+
             local Toggled = false
 
             Toggle.MouseButton1Click:Connect(function()
+                if Locked then
+                    return
+                end
+
                 Toggled = not Toggled
 
                 Callback(Toggled)
