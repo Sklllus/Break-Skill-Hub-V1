@@ -211,7 +211,7 @@ function library:CreateWindow(options)
     InnerBackDrop.ZIndex = -1
     InnerBackDrop.Visible = true
     InnerBackDrop.ImageColor3 = Color3.fromRGB(255, 255, 255)
-    InnerBackDrop.ImageTransparency = 85 / 100
+    InnerBackDrop.ImageTransparency = 70 / 100
     InnerBackDrop.Image = "rbxassetid://7771536804"
 
     TabsHolder.Name = "TabsHolder"
