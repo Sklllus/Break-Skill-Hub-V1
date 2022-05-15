@@ -5,7 +5,6 @@
 --Instances and Functions
 
 local library = {}
-local Flags = {}
 
 local TextService = game:GetService("TextService")
 local UserInputService = game:GetService("UserInputService")
@@ -18,13 +17,12 @@ function Dragify(frame)
     local dragSpeed = .25
     local dragInput = nil
     local dragStart = nil
-    local dragPos = nil
 
     local function UpdateInput(input)
         local Delta = input.Position - dragStart
         local Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + Delta.X, startPos.Y.Scale, startPos.Y.Offset + Delta.Y)
 
-        game:GetService("TweenService"):Create(frame, TweenInfo.new(.25), {Position = Position}):Play()
+        game:GetService("TweenService"):Create(frame, TweenInfo.new(dragSpeed), {Position = Position}):Play()
     end
 
     frame.InputBegan:Connect(function(input)
@@ -444,6 +442,107 @@ function library:CreateWindow(options)
             end
 
             return ButtonFunctions
+        end
+
+        function TabFunctions:AddToggle(options)
+            local ToggleName = (options.Text or options.Name or options.Title) or "New Toggle"
+            local ToggleState = (options.State or options.Value or options.Val) or false
+            local Locked = (options.Locked or options.Lock) or false
+            local Callback = options.Callback or function () end
+
+            local Mouse_Entered = false
+
+            local Toggle = Instance.new("TextButton")
+            local Color = Instance.new("Frame")
+            local Check = Instance.new("ImageLabel")
+            local ColorCorner = Instance.new("UICorner")
+            local TextLabel = Instance.new("TextLabel")
+            local UICorner_6 = Instance.new("UICorner")
+
+            Toggle.Name = "Toggle"
+            Toggle.Parent = Scroll
+            Toggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            Toggle.BackgroundTransparency = 1
+            Toggle.Size = UDim2.new(0, 534, 0, 32)
+            Toggle.Font = Enum.Font.SourceSansBold
+            Toggle.Text = ""
+            Toggle.TextColor3 = Color3.fromRGB(0, 0, 0)
+
+            UICorner_6.CornerRadius = UDim.new(0, 3)
+            UICorner_6.Parent = Toggle
+
+            Color.Name = "Color"
+            Color.Parent = Toggle
+            Color.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+            Color.Position = UDim2.new(0.0131086139, 0, 0.1875, 0)
+            Color.Size = UDim2.new(0, 20, 0, 20)
+
+            Check.Name = "Check"
+            Check.Parent = Color
+            Check.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            Check.BackgroundTransparency = 1
+            Check.Position = UDim2.new(0.100000009, 0, 0.150000006, 0)
+            Check.Size = UDim2.new(0, 15, 0, 15)
+            Check.Image = "rbxassetid://7072706620"
+            Check.ImageTransparency = 1
+
+            ColorCorner.CornerRadius = UDim.new(0, 3)
+            ColorCorner.Parent = Color
+
+            TextLabel.Parent = Toggle
+            TextLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            TextLabel.BackgroundTransparency = 1
+            TextLabel.Position = UDim2.new(0.0692883879, 0, 0, 0)
+            TextLabel.Size = UDim2.new(0, 212, 0, 32)
+            TextLabel.Font = Enum.Font.SourceSansBold
+            TextLabel.Text = ToggleName
+            TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            TextLabel.TextSize = 14
+            TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+            local Toggled = false
+
+            Toggle.MouseButton1Click:Connect(function()
+                Toggled = not Toggled
+
+                Callback(Toggled)
+
+                if Mouse_Entered then
+                    TweenService:Create(Toggle, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundTransparency = 0.6}):Play()
+
+                    wait(0.08)
+
+                    TweenService:Create(Toggle, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundTransparency = 0.95}):Play()
+                else
+                    TweenService:Create(Toggle, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundTransparency = 0.6}):Play()
+
+                    wait(0.08)
+
+                    TweenService:Create(Toggle, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundTransparency = 0.1}):Play)
+                end
+
+                if Toggled then
+                    TweenService:Create(Color, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
+                    TweenService:Create(Check, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {ImageTransparency = 0}):Play()
+                else
+                    TweenService:Create(Color, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(40, 40, 50)}):Play()
+                    TweenService:Create(Check, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {ImageTransparency = 1}):Play()
+                end
+            end)
+
+            Toggle.MouseEnter:Connect(function()
+                Mouse_Entered = true
+
+                TweenService:Create(Toggle, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundTransparency = 0.95}):Play()
+            end)
+
+            Toggle.MouseLeave:Connect(function()
+                Mouse_Entered = false
+
+                TweenService:Create(Toggle, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
+            end)
+
+
         end
 
         return TabFunctions
