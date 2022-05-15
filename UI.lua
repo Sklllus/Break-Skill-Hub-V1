@@ -486,7 +486,7 @@ function library:CreateWindow(options)
             local SectionHeadLine = Instance.new("TextLabel")
 
             NewSection.Name = SectionName
-            NewSection.Parent = (SectionSide and ((SectionSide:lower() == "Left" and LeftSide) or RightSide)) or LeftSide
+            NewSection.Parent = (SectionSide and ((SectionSide:lower() == "left" and LeftSide) or RightSide)) or LeftSide
             NewSection.BackgroundColor3 = library.Colors.SectionBackground
             NewSection.BorderColor3 = library.Colors.OuterBorder
             NewSection.Size = UDim2.new(1, -20)
@@ -523,7 +523,7 @@ function library:CreateWindow(options)
             SectionHeadLine.ZIndex = 2
             SectionHeadLine.Font = Enum.Font.SourceSansBold
             SectionHeadLine.LineHeight = 1.15
-            SectionHeadLine.Text = SectionName
+            SectionHeadLine.Text = (SectionName and SectionName or "New Section")
             SectionHeadLine.TextColor3 = library.Colors.Section
             SectionHeadLine.TextSize = 14
             SectionHeadLine.Size = UDim2.fromOffset(TextToSize(SectionHeadLine).X + 4, 12)
@@ -533,7 +533,7 @@ function library:CreateWindow(options)
             InsideBorderHider.BackgroundColor3 = library.Colors.SectionBackground
             InsideBorderHider.BorderSizePixel = 0
             InsideBorderHider.Position = UDim2.fromOffset(15)
-            InsideBorderHider.Size = UDim2.fromOffset(SectionHeadLine.AbsoluteSize.X + 3, 1)
+            InsideBorderHider.Size = UDim2.fromOffset(SectionHeadLine.AbsoluteSize.X + 4, 1)
 
             OutsideBorderHider.Name = "OutsideBorderHider"
             OutsideBorderHider.Parent = NewSection
@@ -558,6 +558,7 @@ function library:CreateWindow(options)
                 end
 
                 NewSection.Size = UDim2.new(1, -20, 0, (SectionList.AbsoluteContentSize.Y + 15))
+
                 CurrentHolder.CanvasSize = UDim2:fromOffset(CurrentHolder:FindFirstAncestorOfClass("UIListLayout").AbsoluteContentSize.Y + 22 + (extra and extra or 0))
             end
 
@@ -567,7 +568,7 @@ function library:CreateWindow(options)
 
             function SectionFunctions:AddLabel(options, ...)
                 local LabelName = (options.Name or options.Title or options.Text) or "New Label"
-                local LabelFlag = options.Flag or (function()
+                local LabelFlag = options.Flag or (function ()
                     library.UnnamedLabels = 1 + (library.UnnamedLabels or 0)
 
                     return "Label" .. tostring(library.UnnamedLabels)
@@ -592,14 +593,13 @@ function library:CreateWindow(options)
                 LabelHeadLine.Size = UDim2.fromOffset(215, 12)
                 LabelHeadLine.Font = Enum.Font.SourceSansBold
                 LabelHeadLine.Text = LabelName
-                LabelHeadLine.TextColor3 = Color3.fromRGB(255, 255, 255)
+                LabelHeadLine.TextColor3 = library.Colors.ElementText
                 LabelHeadLine.TextSize = 14
                 LabelHeadLine.TextXAlignment = Enum.TextXAlignment.Left
 
                 LabelPositioner.Name = "LabelPositioner"
                 LabelPositioner.Parent = NewLabel
                 LabelPositioner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-                LabelPositioner.BackgroundTransparency = 1
                 LabelPositioner.Position = UDim2.new(0.00448430516)
                 LabelPositioner.Size = UDim2.fromOffset(214, 19)
 
@@ -615,14 +615,14 @@ function library:CreateWindow(options)
                     return str
                 end
 
-                local Default = LabelHeadLine.Text
+                local Defualt = LabelHeadLine.Text
 
                 local ObjectData = {
                     Options = options,
                     Name = LabelFlag,
                     Flag = LabelFlag,
                     Type = "Label",
-                    Default = Default,
+                    Default = Defualt,
                     Parent = SectionFunctions,
                     Instance = LabelHeadLine,
                     Set = Set,
@@ -634,7 +634,7 @@ function library:CreateWindow(options)
                         return LabelHeadLine.Text
                     end,
                     Reset = function()
-                        return Set(nil, Default)
+                        return Set(nil, Defualt)
                     end
                 }
 
