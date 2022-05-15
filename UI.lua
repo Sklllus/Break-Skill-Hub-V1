@@ -508,16 +508,12 @@ function library:CreateWindow(options)
                 TextLabel.Text = ToggleName .. " (Locked)"
             end
 
-            local Toggled = false
-
             Toggle.MouseButton1Click:Connect(function()
                 if Locked then
                     return
                 end
 
-                Toggled = options.State
-
-                Callback(Toggled)
+                Callback(ToggleState)
 
                 if Mouse_Entered then
                     TweenService:Create(Toggle, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundTransparency = 0.6}):Play()
@@ -533,7 +529,7 @@ function library:CreateWindow(options)
                     TweenService:Create(Toggle, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundTransparency = 0.1}):Play()
                 end
 
-                if Toggled then
+                if ToggleState then
                     TweenService:Create(Color, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
                     TweenService:Create(Check, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {ImageTransparency = 0}):Play()
                 else
