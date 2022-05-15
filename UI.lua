@@ -5,7 +5,9 @@
 --Instances and Functions
 
 local library = {
+    ColorPicker = false,
     Flags = {},
+    Elements = {},
     Colors = {
         Main = Color3.fromRGB(255, 40, 40),
         Background = Color3.fromRGB(40, 40, 40),
@@ -133,6 +135,9 @@ end
 function library:CreateWindow(options)
     local WindowName = (options.Name or options.Title or options.Text) or "New Window"
     local WindowOptions = options
+
+    local SubMenuOpen = nil
+    local HomePage = nil
 
     for i, v in pairs(CoreGui:GetChildren()) do
         if v.Name == WindowName then
@@ -284,6 +289,7 @@ function library:CreateWindow(options)
 
     local WindowFunctions = {
         TabCount = 0,
+        Flags = library.Elements,
         Selected = {}
     }
 
@@ -333,7 +339,145 @@ function library:CreateWindow(options)
     --CreateTab
     --]
 
+    function WindowFunctions:CreateTab(options, ...)
+        local TabName = (options.Name or options.Title or options.Text) or "New Tab"
+        local TabImage = (options.Image or options.ID or options.AssetID or options.Asset) or nil
 
+        WindowFunctions.TabCount = WindowFunctions.TabCount + 1
+
+        local NewTab = Instance.new((TabImage and "ImageButton") or "TextButton")
+        local NewTabHolder = Instance.new("Frame")
+        local LeftSide = Instance.new("ScrollingFrame")
+        local LeftSideList = Instance.new("UIListLayout")
+        local LeftSidePadding = Instance.new("UIPadding")
+        local RightSide = Instance.new("ScrollingFrame")
+        local RightSideList = Instance.new("UIListLayout")
+        local RightSidePadding = Instance.new("UIPadding")
+
+        NewTab.Name = "New Tab"
+        NewTab.Parent = TabsHolder
+        NewTab.BackgroundTransparency = 1
+        NewTab.LayoutOrder = (options.LastTab and 99999) or tonumber(options.TabOrder or options.LayoutOrder) or (2 + WindowFunctions.TabCount)
+
+        if TabImage then
+            NewTab.Image = TabImage
+            NewTab.ImageColor3 = Color3.fromRGB(255, 255, 255)
+            NewTab.Size = UDim2:new(TabsHolder.AbsoluteSize.Y, 1)
+        else
+            NewTab.Font = Enum.Font.SourceSansBold
+            NewTab.Text = TabName
+            NewTab.TextColor3 = library.Colors.TabText
+            NewTab.TextSize = 14
+            NewTab.TextStrokeColor3 = Color3.fromRGB(40, 40, 40)
+            NewTab.TextStrokeTransparency = 0.75
+            NewTab.Size = UDim2:new(TextToSize(NewTab).X + 4, 1)
+        end
+
+        local function GoTo()
+            if not library.ColorPicker and not SubMenuOpen and WindowFunctions.Selected.Button ~= NewTab then
+                pcall(function()
+                    for _, v in next, library.Elements do
+                        if v and type(v) == "table" and v.Update then
+                            pcall(v.Update)
+                        end
+                    end
+                end)
+
+                if WindowFunctions.LastTab then
+                    WindowFunctions.LastTab[4] = 1.35
+                end
+
+                WindowFunctions:MoveTabSlider(NewTab)
+
+                if WindowFunctions.Selected.Button.ClassName == "TextButton" then
+                    TweenService:Create(WindowFunctions.Selected.Button, TweenInfo.new(0.35, library.Configuration.EasingStyle, library.Configuration.EasingDirection), {TextColor3 = library.Colors.TabText}):Play()
+                end
+
+                WindowFunctions.Selected.Holder.Visible = false
+                WindowFunctions.Selected.Button = NewTab
+                WindowFunctions.Selected.Holder = NewTabHolder
+
+                if WindowFunctions.Selected.Button.ClassName == "TextButton" then
+                    TweenService:Create(WindowFunctions.Selected.Button, TweenInfo.new(0.35, library.Configuration.EasingStyle, library.Configuration.EasingDirection), {TextColor3 = library.Colors.TabText})
+                end
+
+                WindowFunctions.Selected.Holder.Visible = true
+            end
+        end
+
+        if not HomePage and NewTab.LayoutOrder <= 4 then
+            HomePage = GoTo
+        end
+
+        NewTab.MouseButton1Click:Connect(GoTo)
+
+        if WindowFunctions.TabCount == 1 then
+            TabsSlider.Size = UDim2.fromOffset(NewTab.AbsoluteSize.X, 1)
+            TabsSlider.Position = UDim2.fromOffset(NewTab.AbsolutePosition.X, NewTab.AbsolutePosition.Y + NewTab.AbsoluteSize.Y) - UDim2.fromOffset(MainFrame.AbsolutePosition.X, MainFrame.AbsolutePosition.Y)
+            TabsSlider.Visible = true
+
+            WindowFunctions.Selected.Holder = NewTabHolder
+            WindowFunctions.Selected.Button = NewTab
+        end
+
+        NewTabHolder.Name = TabName
+        NewTabHolder.Parent = InnerMainHolder
+        NewTabHolder.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        NewTabHolder.BackgroundTransparency = 1
+        NewTabHolder.Size = UDim2.fromScale(1, 1)
+        NewTabHolder.Visible = WindowFunctions.TabCount == 1
+
+        LeftSide.Name = "LeftSide"
+        LeftSide.Parent = NewTabHolder
+        LeftSide.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        LeftSide.BackgroundTransparency = 1
+        LeftSide.Size = UDim2.fromScale(0.5, 1)
+        LeftSide.CanvasSize = UDim2.new()
+        LeftSide.ScrollBarThickness = 0
+
+        LeftSideList.Name = "LeftSideList"
+        LeftSideList.Parent = LeftSide
+        LeftSideList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+        LeftSideList.SortOrder = Enum.SortOrder.LayoutOrder
+        LeftSideList.Padding = UDim:new(14)
+
+        LeftSidePadding.Name = "LeftSidePadding"
+        LeftSidePadding.Parent = LeftSide
+        LeftSidePadding.PaddingTop = UDim:new(12)
+
+        RightSide.Name = "RightSide"
+        RightSide.Parent = NewTabHolder
+        RightSide.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        RightSide.BackgroundTransparency = 1
+        RightSide.Size = UDim2.fromScale(0.5, 1)
+        RightSide.CanvasSize = UDim2.new()
+        RightSide.ScrollBarThickness = 0
+        RightSide.Position = UDim2.new(0.5)
+
+        RightSideList.Name = "RightSideList"
+        RightSideList.Parent = RightSide
+        RightSideList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+        RightSideList.SortOrder = Enum.SortOrder.LayoutOrder
+        RightSideList.Padding = UDim:new(14)
+
+        RightSidePadding.Name = "RightSidePadding"
+        RightSidePadding.Parent = RightSide
+        RightSidePadding.PaddingTop = UDim:new(12)
+
+        local TabFunctions = {
+            Flags = {}
+        }
+
+        --[
+        --CreateSection
+        --]
+
+        function TabFunctions:CreateSection(options, ...)
+            
+        end
+
+        return TabFunctions
+    end
 
     return WindowFunctions
 end
