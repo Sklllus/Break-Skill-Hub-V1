@@ -486,7 +486,7 @@ function library:CreateWindow(options)
             local SectionHeadLine = Instance.new("TextLabel")
 
             NewSection.Name = SectionName
-            NewSection.Parent = (SectionSide and ((SectionSide:lower() == "left" and LeftSide) or RightSide)) or LeftSide
+            NewSection.Parent = (SectionSide and (SectionSide == "left" and LeftSide) or RightSide) or LeftSide
             NewSection.BackgroundColor3 = library.Colors.SectionBackground
             NewSection.BorderColor3 = library.Colors.OuterBorder
             NewSection.Size = UDim2.new(1, -20)
