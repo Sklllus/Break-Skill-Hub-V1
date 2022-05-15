@@ -515,7 +515,7 @@ function library:CreateWindow(options)
                     return
                 end
 
-                Toggled = not Toggled
+                Toggled = options.State
 
                 Callback(Toggled)
 
@@ -530,7 +530,7 @@ function library:CreateWindow(options)
 
                     wait(0.08)
 
-                    TweenService:Create(Toggle, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundTransparency = 0.1}):Play)
+                    TweenService:Create(Toggle, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundTransparency = 0.1}):Play()
                 end
 
                 if Toggled then
