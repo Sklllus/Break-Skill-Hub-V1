@@ -577,7 +577,6 @@ function library:CreateWindow(options)
                 local NewLabel = Instance.new("Frame")
                 local LabelHeadLine = Instance.new("TextLabel")
                 local LabelPositioner = Instance.new("Frame")
-                local LabelButton = Instance.new("TextButton")
 
                 NewLabel.Name = "NewLabel"
                 NewLabel.Parent = SectionHolder
@@ -600,6 +599,7 @@ function library:CreateWindow(options)
                 LabelPositioner.Name = "LabelPositioner"
                 LabelPositioner.Parent = NewLabel
                 LabelPositioner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                LabelPositioner.BackgroundTransparency = 1
                 LabelPositioner.Position = UDim2.new(0.00448430516)
                 LabelPositioner.Size = UDim2.fromOffset(214, 19)
 
