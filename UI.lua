@@ -473,7 +473,177 @@ function library:CreateWindow(options)
         --]
 
         function TabFunctions:CreateSection(options, ...)
-            
+            local SectionName = (options.Name or options.Title or options.Text) or "New Section"
+            local SectionSide = options.Side
+
+            local NewSection = Instance.new("Frame")
+            local NewSectionBorder = Instance.new("Frame")
+            local InsideBorderHider = Instance.new("Frame")
+            local OutsideBorderHider = Instance.new("Frame")
+            local SectionHolder = Instance.new("Frame")
+            local SectionList = Instance.new("UIListLayout")
+            local SectionPadding = Instance.new("UIPadding")
+            local SectionHeadLine = Instance.new("TextLabel")
+
+            NewSection.Name = SectionName
+            NewSection.Parent = (SectionSide and ((SectionSide:lower() == "Left" and LeftSide) or RightSide)) or LeftSide
+            NewSection.BackgroundColor3 = library.Colors.SectionBackground
+            NewSection.BorderColor3 = library.Colors.OuterBorder
+            NewSection.Size = UDim2.new(1, -20)
+            NewSection.Visible = false
+
+            NewSectionBorder.Name = "NewSectionBorder"
+            NewSectionBorder.Parent = NewSection
+            NewSectionBorder.BackgroundColor3 = library.Colors.SectionBackground
+            NewSectionBorder.BorderColor3 = library.Colors.InnerBorder
+            NewSectionBorder.BorderMode = Enum.BorderMode.Inset
+            NewSectionBorder.Size = UDim2.fromScale(1, 1)
+
+            SectionHolder.Name = "SectionHolder"
+            SectionHolder.Parent = NewSection
+            SectionHolder.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            SectionHolder.BackgroundTransparency = 1
+            SectionHolder.Size = UDim2.fromScale(1, 1)
+
+            SectionList.Name = "SectionList"
+            SectionList.Parent = SectionHolder
+            SectionList.HorizontalAlignment = Enum.HorizontalAlignment.Center
+            SectionList.SortOrder = Enum.SortOrder.LayoutOrder
+            SectionList.Padding = UDim:new(1)
+
+            SectionPadding.Name = "SectionPadding"
+            SectionPadding.Parent = SectionHolder
+            SectionPadding.PaddingTop = UDim:new(9)
+
+            SectionHeadLine.Name = "SectionHeadLine"
+            SectionHeadLine.Parent = NewSection
+            SectionHeadLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            SectionHeadLine.BackgroundTransparency = 1
+            SectionHeadLine.Position = UDim2.fromOffset(18, -8)
+            SectionHeadLine.ZIndex = 2
+            SectionHeadLine.Font = Enum.Font.SourceSansBold
+            SectionHeadLine.LineHeight = 1.15
+            SectionHeadLine.Text = SectionName
+            SectionHeadLine.TextColor3 = library.Colors.Section
+            SectionHeadLine.TextSize = 14
+            SectionHeadLine.Size = UDim2.fromOffset(TextToSize(SectionHeadLine).X + 4, 12)
+
+            InsideBorderHider.Name = "InsideBorderHider"
+            InsideBorderHider.Parent = NewSection
+            InsideBorderHider.BackgroundColor3 = library.Colors.SectionBackground
+            InsideBorderHider.BorderSizePixel = 0
+            InsideBorderHider.Position = UDim2.fromOffset(15)
+            InsideBorderHider.Size = UDim2.fromOffset(SectionHeadLine.AbsoluteSize.X + 3, 1)
+
+            OutsideBorderHider.Name = "OutsideBorderHider"
+            OutsideBorderHider.Parent = NewSection
+            OutsideBorderHider.BackgroundColor3 = library.Colors.Background
+            OutsideBorderHider.BorderSizePixel = 0
+            OutsideBorderHider.Position = UDim2.fromOffset(15, -1)
+            OutsideBorderHider.Size = UDim2.fromOffset(SectionHeadLine.AbsoluteSize.X + 3, 1)
+
+            local SectionFunctions = {
+                Flags = {}
+            }
+
+            --[
+            --Update
+            --]
+
+            function SectionFunctions:Update(extra)
+                local CurrentHolder = NewSection.Parent
+
+                if not NewSection.Visible then
+                    NewSection.Visible = true
+                end
+
+                NewSection.Size = UDim2.new(1, -20, 0, (SectionList.AbsoluteContentSize.Y + 15))
+                CurrentHolder.CanvasSize = UDim2:fromOffset(CurrentHolder:FindFirstAncestorOfClass("UIListLayout").AbsoluteContentSize.Y + 22 + (extra and extra or 0))
+            end
+
+            --[
+            --AddLabel
+            --]
+
+            function SectionFunctions:AddLabel(options, ...)
+                local LabelName = (options.Name or options.Title or options.Text) or "New Label"
+                local LabelFlag = options.Flag or (function()
+                    library.UnnamedLabels = 1 + (library.UnnamedLabels or 0)
+
+                    return "Label" .. tostring(library.UnnamedLabels)
+                end)()
+
+                local NewLabel = Instance.new("Frame")
+                local LabelHeadLine = Instance.new("TextLabel")
+                local LabelPositioner = Instance.new("Frame")
+                local LabelButton = Instance.new("TextButton")
+
+                NewLabel.Name = "NewLabel"
+                NewLabel.Parent = SectionHolder
+                NewLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                NewLabel.BackgroundTransparency = 1
+                NewLabel.Size = UDim2.new(1, 0, 0, 19)
+
+                LabelHeadLine.Name = "LabelHeadLine"
+                LabelHeadLine.Parent = NewLabel
+                LabelHeadLine.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                LabelHeadLine.BackgroundTransparency = 1
+                LabelHeadLine.Position = UDim2.fromScale(0.031, 0.165842161)
+                LabelHeadLine.Size = UDim2.fromOffset(215, 12)
+                LabelHeadLine.Font = Enum.Font.SourceSansBold
+                LabelHeadLine.Text = LabelName
+                LabelHeadLine.TextColor3 = Color3.fromRGB(255, 255, 255)
+                LabelHeadLine.TextSize = 14
+                LabelHeadLine.TextXAlignment = Enum.TextXAlignment.Left
+
+                LabelPositioner.Name = "LabelPositioner"
+                LabelPositioner.Parent = NewLabel
+                LabelPositioner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+                LabelPositioner.BackgroundTransparency = 1
+                LabelPositioner.Position = UDim2.new(0.00448430516)
+                LabelPositioner.Size = UDim2.fromOffset(214, 19)
+
+                SectionFunctions:Update()
+
+                local function Set(t, str)
+                    if nil == str and t ~= nil then
+                        str = t
+                    end
+
+                    LabelHeadLine.Text = (nil ~= str and tostring(str)) or "New Label"
+
+                    return str
+                end
+
+                local Default = LabelHeadLine.Text
+
+                local ObjectData = {
+                    Options = options,
+                    Name = LabelFlag,
+                    Flag = LabelFlag,
+                    Type = "Label",
+                    Default = Default,
+                    Parent = SectionFunctions,
+                    Instance = LabelHeadLine,
+                    Set = Set,
+                    RawSet = Set,
+                    Get = function()
+                        return LabelHeadLine.Text, LabelHeadLine
+                    end,
+                    Update = function()
+                        return LabelHeadLine.Text
+                    end,
+                    Reset = function()
+                        return Set(nil, Default)
+                    end
+                }
+
+                TabFunctions.Flags[LabelFlag], SectionFunctions.Flags[LabelFlag], library.Elements[LabelFlag] = ObjectData, ObjectData, ObjectData
+
+                return ObjectData
+            end
+
+            return SectionFunctions
         end
 
         return TabFunctions
