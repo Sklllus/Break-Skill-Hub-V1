@@ -569,7 +569,7 @@ function library:CreateWindow(options)
             function SectionFunctions:AddLabel(options, ...)
                 local LabelName = (options.Name or options.Title or options.Text) or "New Label"
                 local LabelFlag = options.Flag or (function ()
-                    library.UnnamedLabels = (library.UnnamedLabels + 1) or 0
+                    library.UnnamedLabels = 1 + library.UnnamedLabels
 
                     return "Label" .. tostring(library.UnnamedLabels)
                 end)()
@@ -577,7 +577,6 @@ function library:CreateWindow(options)
                 local NewLabel = Instance.new("Frame")
                 local LabelHeadLine = Instance.new("TextLabel")
                 local LabelPositioner = Instance.new("Frame")
-                local LabelButton = Instance.new("TextButton")
 
                 NewLabel.Name = "NewLabel"
                 NewLabel.Parent = SectionHolder
