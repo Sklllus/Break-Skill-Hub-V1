@@ -486,7 +486,7 @@ function library:CreateWindow(options)
             local SectionHeadLine = Instance.new("TextLabel")
 
             NewSection.Name = SectionName
-            NewSection.Parent = (SectionSide and (SectionSide == "Left" and LeftSide) or (SectionSide == "Right" and RightSide)) or LeftSide
+            NewSection.Parent = (SectionSide and (SectionSide == "Left" and LeftSide) or RightSide) or LeftSide
             NewSection.BackgroundColor3 = library.Colors.SectionBackground
             NewSection.BorderColor3 = library.Colors.OuterBorder
             NewSection.Size = UDim2.new(1, -20)
@@ -569,7 +569,7 @@ function library:CreateWindow(options)
             function SectionFunctions:AddLabel(options, ...)
                 local LabelName = (options.Name or options.Title or options.Text) or "New Label"
                 local LabelFlag = options.Flag or (function ()
-                    library.UnnamedLabels = 1 + library.UnnamedLabels
+                    library.UnnamedLabels = 1 + (library.UnnamedLabels or 0)
 
                     return "Label" .. tostring(library.UnnamedLabels)
                 end)()
