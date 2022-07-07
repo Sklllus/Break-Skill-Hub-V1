@@ -7,7 +7,6 @@ local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 
 local Client = Players.Client
-local Content, isReady = Players:GetUserThumbnailAsync(Client.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
 
 local function Dragify(frame)
     local DragToggle = nil
@@ -62,7 +61,7 @@ end
 --]
 
 function BreakSkill:CreateWindow(options)
-    local Title = (options.Title or options.Name or options.WindowName or options.WindowTitle) or "Break-Skill Hub - V1"
+    local Title = (options.Title or options.Name or options.WindowName or options.WindowTitle or options.WindowText or options.Text) or "Break-Skill Hub - V1"
 
     local GameTitle = MarketplaceService:GetProductInfo(game.PlaceId).Name
 
@@ -132,7 +131,7 @@ function BreakSkill:CreateWindow(options)
     User.BackgroundTransparency = 1
     User.Position = UDim2.new(0.948616505, 0, 0.421052635, 0)
     User.Size = UDim2.new(0, 23, 0, 23)
-    User.Image = Content
+    User.Image = "rbxassetid://7072724349"
     User.ImageTransparency = 0.8
 
     SideBar.Name = "SideBar"
@@ -166,11 +165,21 @@ function BreakSkill:CreateWindow(options)
     local Tabs = {}
 
     --[
+    --SetTitle
+    --]
+
+    function Tabs:SetTitle(title)
+        TextTitle = title
+
+        return title
+    end
+
+    --[
     --CreateTab
     --]
 
     function Tabs:CreateTab(options)
-        local TabTitle = (options.Title or options.Name or options.TabName or options.TabTitle) or "New Tab"
+        local TabTitle = (options.Title or options.Name or options.TabName or options.TabTitle or options.Text or options.TabText) or "New Tab"
         local TabLogo = (options.TabLogo or options.Logo or options.TabID or options.ID) or "rbxassetid://7429253275"
 
         local TabButton = Instance.new("TextButton", ScrollingFrame)
@@ -322,8 +331,27 @@ function BreakSkill:CreateWindow(options)
         Elements.Image = Elements.SetLogo
 
         --[
-        --
+        --AddLabel
         --]
+
+        function Elements:AddLabel(options)
+            local LabelName = (options.Name or options.Title or options.Text or options.LabelName or options.LabelTitle or options.LabelText) or "New Label"
+
+            local Label = Instance.new("TextLabel", Scroll)
+            local LabelCorner = Instance.new("UICorner", Label)
+
+            Label.Name = "Label"
+            Label.BackgroundColor3 = Color3.fromRGB(110, 120, 200)
+            Label.Position = UDim2.new(0, 0, 0.581250012, 0)
+            Label.Size = UDim2.new(0, 534, 0, 34)
+            Label.Font = Enum.Font.Gotham
+            Label.Text = LabelName
+            Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Label.TextSize = 14
+
+            LabelCorner.CornerRadius = UDim.new(0, 3)
+            LabelCorner.Name = "Label Corner"
+        end
 
         return Elements
     end
