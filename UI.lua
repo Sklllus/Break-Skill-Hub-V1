@@ -3,10 +3,7 @@ local BreakSkill = {}
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local MarketplaceService = game:GetService("MarketplaceService")
-local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
-
-local Client = Players.Client
 
 local function Dragify(frame)
     local DragToggle = nil
@@ -174,6 +171,12 @@ function BreakSkill:CreateWindow(options)
         return title
     end
 
+    Tabs.SetName = Tabs.SetTitle
+    Tabs.SetText = Tabs.SetTitle
+    Tabs.Name = Tabs.SetTitle
+    Tabs.Text = Tabs.SetTitle
+    Tabs.Title = Tabs.SetTitle
+
     --[
     --CreateTab
     --]
@@ -312,6 +315,7 @@ function BreakSkill:CreateWindow(options)
         Elements.SetText = Elements.SetTitle
         Elements.Text = Elements.SetTitle
         Elements.Name = Elements.SetTitle
+        Elements.Title = Elements.SetTitle
 
         --[
         --SetLogo
@@ -351,6 +355,26 @@ function BreakSkill:CreateWindow(options)
 
             LabelCorner.CornerRadius = UDim.new(0, 3)
             LabelCorner.Name = "Label Corner"
+
+            local LabelFunctions = {}
+
+            --[
+            --SetTitle
+            --]
+
+            function LabelFunctions:SetTitle(title)
+                Label.Text = title
+
+                return title
+            end
+
+            LabelFunctions.SetName = LabelFunctions.SetTitle
+            LabelFunctions.SetText = LabelFunctions.SetTitle
+            LabelFunctions.Name = LabelFunctions.SetTitle
+            LabelFunctions.Text = LabelFunctions.SetTitle
+            LabelFunctions.Title = LabelFunctions.SetTitle
+
+            return LabelFunctions
         end
 
         return Elements
