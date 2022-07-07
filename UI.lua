@@ -7,10 +7,7 @@ local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 
 local Client = Players.Client
-local UserId = Client.UserId
-local ThumbType = Enum.ThumbnailType.HeadShot
-local ThumbSize = Enum.ThumbnailSize.Size60x60
-local Content, isReady = Players:GetUserThumbnailAsync(UserId, ThumbType, ThumbSize)
+local Content, isReady = Players:GetUserThumbnailAsync(Client.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
 
 local function Dragify(frame)
     local DragToggle = nil
