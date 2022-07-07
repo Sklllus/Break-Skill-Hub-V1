@@ -3,7 +3,14 @@ local BreakSkill = {}
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local MarketplaceService = game:GetService("MarketplaceService")
+local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
+
+local Client = Players.Client
+local UserId = Client.UserId
+local ThumbType = Enum.ThumbnailType.HeadShot
+local ThumbSize = Enum.ThumbnailSize.Size60x60
+local Content, isReady = Players:GetUserThumbnailAsync(UserId, ThumbType, ThumbSize)
 
 local function Dragify(frame)
     local DragToggle = nil
@@ -105,7 +112,7 @@ function BreakSkill:CreateWindow(options)
     TextTitle.BackgroundTransparency = 1
     TextTitle.Position = UDim2.new(0.242099673, 0, 0.0526315793, 0)
     TextTitle.Size = UDim2.new(0, 232, 0, 30)
-    TextTitle.Font = Enum.Font.SourceSansBold
+    TextTitle.Font = Enum.Font.Gotham
     TextTitle.Text = Title
     TextTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
     TextTitle.TextSize = 20
@@ -116,7 +123,7 @@ function BreakSkill:CreateWindow(options)
     TextGame.BackgroundTransparency = 1
     TextGame.Position = UDim2.new(0.242099673, 0, 0.684210479, 0)
     TextGame.Size = UDim2.new(0, 232, 0, 27)
-    TextGame.Font = Enum.Font.SourceSansBold
+    TextGame.Font = Enum.Font.Gotham
     TextGame.Text = GameTitle
     TextGame.TextColor3 = Color3.fromRGB(255, 255, 255)
     TextGame.TextSize = 15
@@ -128,7 +135,7 @@ function BreakSkill:CreateWindow(options)
     User.BackgroundTransparency = 1
     User.Position = UDim2.new(0.948616505, 0, 0.421052635, 0)
     User.Size = UDim2.new(0, 23, 0, 23)
-    User.Image = "rbxassetid://7072724349"
+    User.Image = Content
     User.ImageTransparency = 0.8
 
     SideBar.Name = "SideBar"
@@ -181,7 +188,7 @@ function BreakSkill:CreateWindow(options)
         TabButton.BorderSizePixel = 0
         TabButton.Size = UDim2.new(0, 159, 0, 41)
         TabButton.AutoButtonColor = false
-        TabButton.Font = Enum.Font.SourceSansBold
+        TabButton.Font = Enum.Font.SourceSans
         TabButton.Text = ""
         TabButton.TextColor3 = Color3.fromRGB(0, 0, 0)
         TabButton.TextSize = 14
@@ -198,7 +205,7 @@ function BreakSkill:CreateWindow(options)
         TextLabel.BackgroundTransparency = 1
         TextLabel.Position = UDim2.new(0.301886708, 0, -0.073170729, 0)
         TextLabel.Size = UDim2.new(0, 117, 0, 47)
-        TextLabel.Font = Enum.Font.SourceSansBold
+        TextLabel.Font = Enum.Font.GothamSemibold
         TextLabel.Text = TabTitle
         TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
         TextLabel.TextSize = 14
@@ -243,7 +250,7 @@ function BreakSkill:CreateWindow(options)
         TitleTab.BackgroundTransparency = 1
         TitleTab.Position = UDim2.new(0.00724637695, 0, -0.127445415, 0)
         TitleTab.Size = UDim2.new(0, 208, 0, 41)
-        TitleTab.Font = Enum.Font.SourceSansBold
+        TitleTab.Font = Enum.Font.GothamSemibold
         TitleTab.Text = TabTitle
         TitleTab.TextColor3 = Color3.fromRGB(115, 125, 190)
         TitleTab.TextSize = 15
