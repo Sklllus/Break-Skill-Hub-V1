@@ -377,10 +377,157 @@ function BreakSkill:CreateWindow(options)
             return LabelFunctions
         end
 
+        Elements.CreateLabel = Elements.AddLabel
+        Elements.Label = Elements.AddLabel
+
+        --[
+        --AddButton
+        --]
+
+        function Elements:AddButton(options)
+            local ButtonName = (options.Name or options.Text or options.Title or options.ButtonName or options.ButtonText or options.ButtonName) or "New Button"
+            local Callback = (options.Callback or options.Function) or function() end
+            local Locked = (options.Locked or options.Lock) or false
+
+            local Presses = 0
+
+            local Button = Instance.new("TextButton", Scroll)
+            local ButtonCorner = Instance.new("UICorner", Button)
+
+            Button.Name = "Button"
+            Button.BackgroundColor3 = Color3.fromRGB(110, 120, 200)
+            Button.Position = UDim2.new(0, 0, 0.581250012, 0)
+            Button.Size = UDim2.new(0, 534, 0, 34)
+            Button.AutoButtonColor = false
+            Button.Font = Enum.Font.Gotham
+            Button.Text = ButtonName
+            Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Button.TextSize = 14
+
+            ButtonCorner.CornerRadius = UDim.new(0, 3)
+            ButtonCorner.Name = "Button Corner"
+
+            Button.MouseButton1Click:Connect(function()
+                if Locked then
+                    return
+                end
+
+                if options.Condition ~= nil and type(options.Condition) == "function" then
+                    local v, e = pcall(options.Condition, Presses)
+
+                    if e then
+                        if not v then
+                            warn(debug.traceback(string.format("Break-Skill Hub - V1 | Error in button %s's condition function: %s", ButtonName, e), 2))
+                        end
+                    else
+                        return
+                    end
+                end
+
+                Callback()
+
+                TweenService:Create(Button, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(185, 200, 255)}):Play()
+
+                wait(0.08)
+
+                TweenService:Create(Button, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
+            end)
+
+            Button.MouseEnter:Connect(function()
+                TweenService:Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(140, 150, 225)}):Play()
+            end)
+
+            Button.MouseLeave:Connect(function()
+                TweenService:Create(Button, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
+            end)
+
+            local ButtonFunctions = {}
+
+            --[
+            --SetTitle
+            --]
+
+            function ButtonFunctions:SetTitle(title)
+                Button.Text = title
+
+                return title
+            end
+
+            ButtonFunctions.SetName = ButtonFunctions.SetTitle
+            ButtonFunctions.SetText = ButtonFunctions.SetTitle
+            ButtonFunctions.Name = ButtonFunctions.SetTitle
+            ButtonFunctions.Text = ButtonFunctions.SetTitle
+            ButtonFunctions.Title = ButtonFunctions.SetTitle
+
+            --[
+            --SetCallback
+            --]
+
+            function ButtonFunctions:SetCallback(call, callback)
+                if type(call) ~= "table" and callback == nil then
+                    callback = call
+                end
+
+                options.Callback = callback
+
+                return callback
+            end
+
+            ButtonFunctions.SetCall = ButtonFunctions.SetCallback
+            ButtonFunctions.NewCallback = ButtonFunctions.SetCallback
+            ButtonFunctions.NewCall = ButtonFunctions.SetCallback
+
+            --[
+            --Press
+            --]
+
+            function ButtonFunctions:Press(...)
+                if Locked then
+                    return
+                end
+
+                if options.Condition ~= nil and type(options.Condition) == "function" then
+                    local v, e = pcall(options.Condition, Presses)
+
+                    if e then
+                        if not v then
+                            warn(debug.traceback(string.format("Break-Skill Hub - V1 | Error in button %s's condition function: %s", ButtonName, e), 2))
+                        end
+                    else
+                        return
+                    end
+                end
+
+                local Args = {...}
+                local A1 = Args[1]
+
+                if A1 and type(A1) == "table" then
+                    table.remove(Args, 1)
+                end
+
+                Presses = 1 + Presses
+
+                task.spawn(Callback, Presses, ...)
+
+                return Presses
+            end
+
+            ButtonFunctions.Click = ButtonFunctions.Press
+        end
+
+        Elements.CreateButton = Elements.AddButton
+        Elements.Button = Elements.AddButton
+
         return Elements
     end
 
+    Tabs.AddTab = Tabs.CreateTab
+    Tabs.Tab = Tabs.CreateTab
+
     return Tabs
 end
+
+BreakSkill.AddWindow = BreakSkill.CreateWindow
+BreakSkill.Window = BreakSkill.CreateWindow
 
 return BreakSkill
