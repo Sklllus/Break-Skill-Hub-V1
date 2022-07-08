@@ -387,6 +387,7 @@ function BreakSkill:CreateWindow(options)
         function Elements:AddButton(options)
             local ButtonName = (options.Name or options.Text or options.Title or options.ButtonName or options.ButtonText or options.ButtonName) or "New Button"
             local Callback = (options.Callback or options.Function or options.Call) or function() end
+            local Condition = (options.Cond or options.Condition) or nil
             local Locked = (options.Locked or options.Lock) or false
 
             local Presses = 0
@@ -545,6 +546,58 @@ function BreakSkill:CreateWindow(options)
             end
 
             ButtonFunctions.SetLock = ButtonFunctions.SetLocked
+
+            --[
+            --Lock
+            --]
+
+            function ButtonFunctions:Lock()
+                if not Locked then
+                    Locked = true
+                end
+
+                return Locked
+            end
+
+            ButtonFunctions.Locked = ButtonFunctions.Lock
+
+            --[
+            --Unlock
+            --]
+
+            function ButtonFunctions:Unlock()
+                if Locked then
+                    Locked = false
+                end
+
+                return Locked
+            end
+
+            ButtonFunctions.Unlock = ButtonFunctions.Unlocked
+
+            --[
+            --SetCondition
+            --]
+
+            function ButtonFunctions:SetCondition(t, condition)
+                if type(t) ~= "table" and condition == nil then
+                    condition = t
+                end
+
+                Condition = condition
+
+                return condition
+            end
+
+            ButtonFunctions.SetCond = ButtonFunctions.SetCondition
+
+            --[
+            --Get
+            --]
+
+            function ButtonFunctions:Get()
+                return Callback, Presses
+            end
         end
 
         Elements.CreateButton = Elements.AddButton
