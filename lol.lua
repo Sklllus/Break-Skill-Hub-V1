@@ -387,7 +387,6 @@ function BreakSkill:CreateWindow(options)
         function Elements:AddButton(options)
             local ButtonName = (options.Name or options.Text or options.Title or options.ButtonName or options.ButtonText or options.ButtonName) or "New Button"
             local Callback = (options.Callback or options.Function or options.Call) or function() end
-            local Condition = (options.Cond or options.Condition) or nil
             local Locked = (options.Locked or options.Lock) or false
 
             local Presses = 0
@@ -417,18 +416,6 @@ function BreakSkill:CreateWindow(options)
                     TweenService:Create(Button, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
 
                     return
-                end
-
-                if options.Condition ~= nil and type(options.Condition) == "function" then
-                    local v, e = pcall(options.Condition, Presses)
-
-                    if e then
-                        if not v then
-                            warn(debug.traceback(string.format("Break-Skill Hub - V1 | Error in button %s's condition function: %s", ButtonName, e), 2))
-                        end
-                    else
-                        return
-                    end
                 end
 
                 Callback()
@@ -493,18 +480,6 @@ function BreakSkill:CreateWindow(options)
                     return
                 end
 
-                if options.Condition ~= nil and type(options.Condition) == "function" then
-                    local v, e = pcall(options.Condition, Presses)
-
-                    if e then
-                        if not v then
-                            warn(debug.traceback(string.format("Break-Skill Hub - V1 | Error in button %s's condition function: %s", ButtonName, e), 2))
-                        end
-                    else
-                        return
-                    end
-                end
-
                 local Args = {...}
                 local A1 = Args[1]
 
@@ -514,7 +489,7 @@ function BreakSkill:CreateWindow(options)
 
                 Presses = 1 + Presses
 
-                task.spawn(Callback, Presses, ...)
+                task.spawn(Callback, ...)
 
                 return Presses
             end
@@ -574,22 +549,6 @@ function BreakSkill:CreateWindow(options)
             end
 
             ButtonFunctions.Unlock = ButtonFunctions.Unlocked
-
-            --[
-            --SetCondition
-            --]
-
-            function ButtonFunctions:SetCondition(t, condition)
-                if type(t) ~= "table" and condition == nil then
-                    condition = t
-                end
-
-                Condition = condition
-
-                return condition
-            end
-
-            ButtonFunctions.SetCond = ButtonFunctions.SetCondition
 
             --[
             --Get
