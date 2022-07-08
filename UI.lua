@@ -166,7 +166,7 @@ function BreakSkill:CreateWindow(options)
     --]
 
     function Tabs:SetTitle(title)
-        TextTitle = title
+        TextTitle.Text = title
 
         return title
     end
