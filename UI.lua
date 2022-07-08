@@ -386,7 +386,7 @@ function BreakSkill:CreateWindow(options)
 
         function Elements:AddButton(options)
             local ButtonName = (options.Name or options.Text or options.Title or options.ButtonName or options.ButtonText or options.ButtonName) or "New Button"
-            local Callback = (options.Callback or options.Function) or function() end
+            local Callback = (options.Callback or options.Function or options.Call) or function() end
             local Locked = (options.Locked or options.Lock) or false
 
             local Presses = 0
@@ -409,6 +409,12 @@ function BreakSkill:CreateWindow(options)
 
             Button.MouseButton1Click:Connect(function()
                 if Locked then
+                    TweenService:Create(Button, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(255, 100, 100)}):Play()
+
+                    wait(0.08)
+
+                    TweenService:Create(Button, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
+
                     return
                 end
 
@@ -513,6 +519,32 @@ function BreakSkill:CreateWindow(options)
             end
 
             ButtonFunctions.Click = ButtonFunctions.Press
+
+            --[
+            --SetLocked
+            --]
+
+            function ButtonFunctions:SetLocked(t, state)
+                if type(t) ~= "table" then
+                    state = t
+                end
+
+                local Last = Locked
+
+                if state == nil then
+                    Locked = not Locked
+                else
+                    Locked = state
+                end
+
+                if Locked ~= Last then
+                    Locked = Last
+                end
+
+                return Locked
+            end
+
+            ButtonFunctions.SetLock = ButtonFunctions.SetLocked
         end
 
         Elements.CreateButton = Elements.AddButton
