@@ -412,9 +412,13 @@ function BreakSkill:CreateWindow(options)
                 if Locked then
                     TweenService:Create(Button, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(255, 100, 100)}):Play()
 
-                    wait(0.08)
+                    Button.Text = ButtonName .. "(Locked)"
+
+                    wait(2.5)
 
                     TweenService:Create(Button, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
+
+                    Button.Text = ButtonName
 
                     return
                 end
