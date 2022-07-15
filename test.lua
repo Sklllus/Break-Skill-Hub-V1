@@ -411,11 +411,15 @@ function BreakSkill:CreateWindow(options)
 
             Button.MouseButton1Click:Connect(function()
                 if Locked then
-                    TweenService:Create(Button, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(255, 100, 100)}):Play()
+                    TweenService:Create(Button, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(255, 25, 25)}):Play()
+
+                    Button.Text = ButtonName .. " Locked"
 
                     wait(0.08)
 
                     TweenService:Create(Button, TweenInfo.new(0.08, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
+
+                    Button.Text = ButtonName
 
                     return
                 end
@@ -612,13 +616,12 @@ function BreakSkill:CreateWindow(options)
 
         function Elements:AddToggle(options)
             local ToggleName = (options.Name or options.Title or options.Text or options.ToggleName or options.ToggleTitle or options.ToggleText) or "New Toggle"
-            local ToggleState = (options.State or options.ToggleState or options.Val or options.Value) or false
+            local ToggleState = (options.State or options.ToggleState or options.Val or options.Value or options.Enabled) or false
             local Locked = (options.Locked or options.Lock) or false
             local Callback = (options.Callback or options.ToggleCallback or options.ToggleFunction or options.Function) or function () end
-            local Condition = (options.Cond or options.Condition) or nil
 
             local Mouse_Entered = false
-            local Toggled = false
+            local Toggled = ToggleState
 
             local Toggle = Instance.new("TextButton", Scroll)
             local Color = Instance.new("Frame", Toggle)
@@ -676,8 +679,33 @@ function BreakSkill:CreateWindow(options)
                 TweenService:Create(Toggle, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
             end)
 
+            if Toggled then
+                if Locked then
+                    TweenService:Create(Color, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(255, 100, 100)}):Play()
+                    TweenService:Create(Check, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {ImageTransparency = 1}):Play()
+                else
+                    TweenService:Create(Color, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(110, 120, 200)}):Play()
+                    TweenService:Create(Check, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {ImageTransparency = 0}):Play()
+                end
+            else
+                TweenService:Create(Color, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(40, 40, 50)}):Play()
+                TweenService:Create(Check, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {ImageTransparency = 1}):Play()
+            end
+
             Toggle.MouseButton1Click:Connect(function()
-                Toggled = not Toggled
+                if Locked then
+                    TweenService:Create(Color, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(255, 25, 25)}):Play()
+
+                    TitleToggle.Text = ToggleName .. " Locked"
+
+                    wait(0.08)
+
+                    TweenService:Create(Color, TweenInfo.new(0.1, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {BackgroundColor3 = Color3.fromRGB(40, 40, 50)}):Play()
+
+                    TitleToggle.Text = ToggleName
+
+                    return
+                end
 
                 Callback(Toggled)
 
