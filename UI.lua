@@ -6,7 +6,6 @@
 
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
@@ -27,32 +26,7 @@ local library = {
     },
     Configuration = {
         SmoothDragging = true
-    },
-    GUI_Parent = (function()
-        local x, c = pcall(function()
-            return CoreGui
-        end)
-
-        if x and c then
-            return c
-        end
-
-        x, c = pcall(function()
-            return (game:IsLoaded() or (game.Loaded:Wait() or 1)) and Client:WaitForChild("PlayerGui")
-        end)
-
-        if x and c then
-            return c
-        end
-
-        x, c = pcall(function()
-            return StarterGui
-        end)
-
-        if x and c then
-            return c
-        end
-    end)()
+    }
 }
 
 local Flags = library.Flags
@@ -63,47 +37,43 @@ local Configuration = library.Configuration
 
 local isDraggingSomething = false
 
-local MakeDraggable
+local function MakeDraggable(topBarObject, object)
+    local dragging = nil
+    local dragInput = nil
+    local dragStart = nil
+    local startPosition = nil
 
-do
-    function MakeDraggable(topBarObject, object)
-        local dragging = nil
-        local dragInput = nil
-        local dragStart = nil
-        local startPosition = nil
+    Signals[1 + #Signals] = topBarObject.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPosition = object.Position
 
-        Signals[1 + #Signals] = topBarObject.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-                dragging = true
-                dragStart = input.Position
-                startPosition = object.Position
-
-                input.Changed:Connect(function()
-                    if input.UserInputState == Enum.UserInputState.End then
-                        dragging = false
-                    end
-                end)
-            end
-        end)
-
-        Signals[1 + #Signals] = UserInputService.InputChanged:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-                dragInput = input
-            end
-        end)
-
-        Signals[1 + #Signals] = UserInputService.InputChanged:Connect(function(input)
-            if input == dragInput and dragging then
-                local Delta = input.Position - dragStart
-
-                if not isDraggingSomething and Configuration.SmoothDragging then
-                    TweenService:Create(object, TweenInfo.new(0.25, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + Delta.X, startPosition.Y.Scale, startPosition.Y.Offset + Delta.Y)}):Play()
-                elseif not isDraggingSomething and not Configuration.SmoothDragging then
-                    object.Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + Delta.X, startPosition.Y.Scale, startPosition.Y.Offset + Delta.Y)
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
                 end
+            end)
+        end
+    end)
+
+    Signals[1 + #Signals] = UserInputService.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+
+    Signals[1 + #Signals] = UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local Delta = input.Position - dragStart
+
+            if not isDraggingSomething and Configuration.SmoothDragging then
+                TweenService:Create(object, TweenInfo.new(0.25, Enum.EasingStyle.Linear, Enum.EasingDirection.In), {Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + Delta.X, startPosition.Y.Scale, startPosition.Y.Offset + Delta.Y)}):Play()
+            elseif not isDraggingSomething and not Configuration.SmoothDragging then
+                object.Position = UDim2.new(startPosition.X.Scale, startPosition.X.Offset + Delta.X, startPosition.Y.Scale, startPosition.Y.Offset + Delta.Y)
             end
-        end)
-    end
+        end
+    end)
 end
 
 --[
@@ -118,8 +88,7 @@ function library:CreateWindow(options)
     local WindowName = (options.Name or options.Title or options.Text) or "New Window"
     local WindowLogo = (options.Logo or options.ID or options.Image) or "rbxassetid://7771536804"
 
-    local BreakSkillHub = Instance.new("ScreenGui", GUI_Parent)
-
+    local BreakSkillHub = Instance.new("ScreenGui", CoreGui)
     local ImageLabel_1 = Instance.new("ImageLabel")
     local Frame_3 = Instance.new("Frame")
     local UICorner_3 = Instance.new("UICorner")
