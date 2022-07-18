@@ -63,32 +63,9 @@ local Configuration = library.Configuration
 
 local isDraggingSomething = false
 
-local ConvertFileName
 local MakeDraggable
 
 do
-    local string_gsub
-
-    function ConvertFileName(str, def, repl)
-        repl = repl or "_"
-
-        local Corrections = 0
-
-        local PredName = string_gsub(str, "%W", function(c)
-            local byt = c:byte()
-
-            if ((byt == 0) or (byt == 32) or (byt == 33) or (byt == 59) or (byt == 61) or ((byt >= 35) and (byt <= 41)) or ((byt >= 43) and (byt <= 57)) or ((byt >= 64) and (byt <= 123)) or ((byt >= 125) and (byt <= 127))) then
-
-            else
-                Corrections = 1 + Corrections
-
-                return repl
-            end
-        end)
-
-        return (def and Corrections == #PredName and tostring(def)) or PredName
-    end
-
     function MakeDraggable(topBarObject, object)
         local dragging = nil
         local dragInput = nil
@@ -140,10 +117,6 @@ end
 function library:CreateWindow(options)
     local WindowName = (options.Name or options.Title or options.Text) or "New Window"
     local WindowLogo = (options.Logo or options.ID or options.Image) or "rbxassetid://7771536804"
-
-    if WindowName and #WindowName > 0 and library.WorkspaceName == "Break-Skill Hub - V1" then
-        library.WorkspaceName = ConvertFileName(WindowName, "Break-Skill Hub - V1")
-    end
 
     local BreakSkillHub = Instance.new("ScreenGui", GUI_Parent)
 
