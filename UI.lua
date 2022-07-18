@@ -16,8 +16,6 @@ local ClientUserId = Client.UserId
 local ThumbType = Enum.ThumbnailType.HeadShot
 local ThumbSize = Enum.ThumbnailSize.Size48x48
 
-local Content, isReady = Players:GetUserThumbnailAsync(ClientUserId, ThumbType, ThumbSize)
-
 local library = {
     Version = "1.0",
     WorkspaceName = "Break-Skill Hub - V1",
@@ -225,7 +223,7 @@ function library:CreateWindow(options)
     Instances.ImageLabel_2.BorderSizePixel = 0
     Instances.ImageLabel_2.Position = UDim2.new(0.9285714030265808, 0, 0, 0)
     Instances.ImageLabel_2.Size = UDim2.new(0, 35, 0, 30)
-    Instances.ImageLabel_2.Image = Content
+    Instances.ImageLabel_2.Image = Players:GetUserThumbnailAsync(ClientUserId, ThumbType, ThumbSize)
 
     Instances.UICorner_3.Name = "UICorner_3"
     Instances.UICorner_3.Parent = Instances.ImageLabel_2
