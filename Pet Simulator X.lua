@@ -35,6 +35,7 @@ local RunService = game:GetService("RunService")
 local TeleportService = game:GetService("TeleportService")
 local Workspace = game:GetService("Workspace")
 
+local Camera = Workspace:WaitForChild("Camera", 5)
 local Client = Players.LocalPlayer
 
 getgenv().UpdateLoop = type(getgenv().UpdateLoop) == "boolean" and getgenv().UpdateLoop or false
@@ -110,6 +111,8 @@ end
 do
     PetSimSDK.CoinsCache = {}
     PetSimSDK.ItemTypeCache = {}
+    PetSimSDK.EquippedPets = {}
+    PetSimSDK.Blacklisted = {}
 
     PetSimSDK.EquippedPetsTime = 999999
     PetSimSDK.CoinCacheTime = 999999
@@ -138,6 +141,10 @@ do
 
         return Data
     end)()
+
+    PetSimSDK.GetCoins = function()
+        return type(PetSimSDK.CoinsCache) == "table" and PetSimSDK.CoinCache or {}
+    end
 
     PetSimSDK.IsOrb = function(object)
         if PetSimSDK.ItemTypeCache[object] then
@@ -290,6 +297,10 @@ do
         return nil
     end
 
+    PetSimSDK.IsBlacklisted = function(type)
+        return PetSimSDK.Blacklisted[type] ~= nil and true or false
+    end
+
     function GetCoinCache()
         local CoinData = __THINGS and __THINGS:FindFirstChild("Coins") and __THINGS.Coins:GetChildren() or {}
 
@@ -326,6 +337,16 @@ getgenv().UpdateCache.PlayerController = function()
         PetSimSDK.CoinCacheTime = os.time()
 
         PetSimSDK.CoinsCache = GetCoinCache()
+
+        for i, v in pairs(PetSimSDK.ItemTypeCache) do
+            if typeof(i) == "Instance" then
+                if i.Parent == nil then
+                    PetSimSDK.ItemTypeCache[i] = nil
+                end
+            else
+                PetSimSDK.ItemTypeCache[i] = nil
+            end
+        end
     end
 end
 
@@ -364,7 +385,66 @@ local AutoFarmsSection = AutoFarmTab:CreateSection({
     Side = "Left"
 })
 
+local UltraAutoFarm = AutoFarmsSection:AddToggle({
+    Name = "Ultra Auto Farm ()",
+    Flag = "AutoFarmTab_AutoFarmsSection_UltraAutoFarm",
+    Enabled = false,
+    Locked = true
+})
 
+local AutoFarm = AutoFarmsSection:AddToggle({
+    Name = "Auto Farm",
+    Flag = "AutoFarmTab_AutoFarmsSection",
+    Enabled = false,
+    Locked = false,
+    Callback = function(val)
+        getgenv().AutoFarm = val
+
+        local OldFarmObject = nil
+
+        task.spawn(function()
+            while getgenv().AutoFarm == true do
+                if Client.Character == nil then
+                    task.wait(1 / 50)
+
+                    continue
+                end
+
+                local Root = Client.Character:FindFirstChild("HumanoidRootPart")
+
+                if #PetSimSDK.EquippedPets > 0 then
+                    local CanProceed = true
+
+                    if CanProceed then
+                        local Coins = PetSimSDK.GetCoins()
+
+                        if #Coins > 0 then
+                            for _, c in ipairs(Coins) do
+                                if c ~= nil then
+                                    if c:FindFirstChild("Coin") then
+                                        if (c.Coin.Position - (Root ~= nil and Root.Position or Camera.CFrame.p)).Magnitude <= 150 then
+                                            local CoinType = PetSimSDK.GetType(c)
+
+                                            if CoinType ~= nil then
+                                                if PetSimSDK.IsBlacklisted(tostring(CoinType)) == false then
+                                                    PetSimSDK.CollectCoin(c, true)
+
+                                                    break
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+
+                task.wait(1 / 50)
+            end
+        end)
+    end
+})
 
 --Auto Farm Settings Section
 
