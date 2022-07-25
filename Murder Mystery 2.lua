@@ -233,14 +233,6 @@ local function UpdateRole(player, info)
     end
 end
 
-local function ManualUpdate()
-    local Data = ReplicatedStorage.GetPlayerData:InvokeServer()
-
-    for i, v in ipairs(Players:GetPlayers()) do
-        pcall(UpdateRole, v, Data[v.Name])
-    end
-end
-
 --[
 --Window
 --]
@@ -626,13 +618,7 @@ local ReJoin = OthersSection:AddButton({
 RunService.Stepped:Connect(function()
     UpdateRole(Client)
 
-    if Murderer == Client then
-        Role:Set("Your Role: Murderer")
-    elseif Sheriff == Client then
-        Role:Set("Your Role: Sheriff")
-    else
-        Role:Set("Your Role: Innocent")
-    end
+    print(Roles[Client])
 end)
 
 spawn(function()
