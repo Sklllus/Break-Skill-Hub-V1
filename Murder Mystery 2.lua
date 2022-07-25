@@ -31,19 +31,7 @@ local Workspace = game:GetService("Workspace")
 
 local Client = Players.LocalPlayer
 
-local Murderer, Sheriff
-
-local Roles = {}
 local Acc = {}
-
-local Colors = {
-    Innocent = Color3.fromRGB(0, 255, 0),
-    Murderer = Color3.fromRGB(255, 0, 0),
-    Sheriff = Color3.fromRGB(0, 0, 255),
-    Hero = Color3.fromRGB(255, 255, 0),
-    Unknown = Color3.fromRGB(55, 55, 55),
-    Gun = Color3.fromRGB(255, 255, 0)
-}
 
 local Method = "Tween"
 
@@ -191,53 +179,6 @@ local function GetClosestCoin()
                 end
             end
         end
-    end
-end
-
-local function UpdateRole(player, info)
-    if player then
-        local Role = typeof(info) == "table" and info.Role or info
-        local RoleColor = Colors.Unknown
-
-        if Role == "Murderer" then
-            Murderer = player
-
-            Roles[player] = "Murderer"
-
-            RoleColor = Colors.Murderer
-        elseif Role == "Sheriff" then
-            Sheriff = player
-
-            Roles[player] = "Sheriff"
-
-            RoleColor = Colors.Sheriff
-        elseif Role == "Hero" then
-            Sheriff = player
-
-            Roles[player] = "Hero"
-
-            RoleColor = Colors.Hero
-        elseif Role == "Innocent" then
-            if Murderer == player then
-                Murderer = nil
-            elseif Sheriff == player then
-                Sheriff = nil
-            end
-
-            Roles[player] = "Innocent"
-
-            RoleColor = Colors.Innocent
-        else
-            Roles[player] = "Unknown"
-        end
-    end
-end
-
-local function ManualUpdate()
-    local Data = ReplicatedStorage.GetPlayerData:InvokeServer()
-
-    for i, v in ipairs(Players:GetPlayers()) do
-        pcall(UpdateRole, v, Data[v.Name])
     end
 end
 
@@ -410,20 +351,7 @@ local OtherVisualsSection = VisualsTab:CreateSection({
     Side = "Right"
 })
 
-local Role = OtherVisualsSection:AddLabel({
-    Name = "Your Role: ",
-    Flag = "VisualsTab_OtherVisualsSection_Role"
-})
 
-local InstantRoleDisplay = OtherVisualsSection:AddToggle({
-    Name = "Instant Role Display",
-    Flag = "VisualsTab_OtherVisualsSection_InstantRoleDisplay",
-    Enabled = false,
-    Locked = false,
-    Callback = function(val)
-        getgenv().InstantRoleDisplay = val
-    end
-})
 
 --[
 --Player Tab
@@ -622,22 +550,6 @@ local ReJoin = OthersSection:AddButton({
 })
 
 --XD
-
-RunService.Stepped:Connect(function()
-    ManualUpdate()
-
-    if Roles[Client] == "Murderer" then
-        Role:Set("Your Role: Murderer")
-    elseif Roles[Client] == "Sheriff" then
-        Role:Set("Your Role: Sheriff")
-    elseif Roles[Client] == "Hero" then
-        Role:Set("Your Role: Hero")
-    elseif Roles[Client] == "Innocent" then
-        Role:Set("Your Role: Innocent")
-    elseif Roles[Client] == "Unknown" then
-        Role:Set("Your Role: Unknown")
-    end
-end)
 
 spawn(function()
     while RunService.RenderStepped:Wait() do
