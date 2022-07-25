@@ -233,6 +233,14 @@ local function UpdateRole(player, info)
     end
 end
 
+local function ManualUpdate()
+    local Data = ReplicatedStorage.GetPlayerData:InvokeServer()
+
+    for i, v in ipairs(Players:GetPlayers()) do
+        pcall(UpdateRole, v, Data[v.Name])
+    end
+end
+
 --[
 --Window
 --]
@@ -616,9 +624,19 @@ local ReJoin = OthersSection:AddButton({
 --XD
 
 RunService.Stepped:Connect(function()
-    UpdateRole(Client)
+    ManualUpdate()
 
-    print(Roles[Client])
+    if Roles[Client] == "Murderer" then
+        Role:Set("Your Role: Murderer")
+    elseif Roles[Client] == "Sheriff" then
+        Role:Set("Your Role: Sheriff")
+    elseif Roles[Client] == "Hero" then
+        Role:Set("Your Role: Hero")
+    elseif Roles[Client] == "Innocent" then
+        Role:Set("Your Role: Innocent")
+    elseif Roles[Client] == "Unknown" then
+        Role:Set("Your Role: Unknown")
+    end
 end)
 
 spawn(function()
