@@ -682,62 +682,78 @@ do
 
     --Auto Farm Settings Section
 
-    local AutoFarmSettingsSection = AutoFarmTab:CreateSection({
-        Name = "Auto Farm Settings",
+    local AutoFarmsSettingsSection = AutoFarmTab:CreateSection({
+        Name = "Auto Farms Settings",
         Side = "Right"
     })
 
-    local IgnoreCoins = AutoFarmSettingsSection:AddToggle({
-        Name = "Ignore Coins",
-        Flag = "AutoFarmTab_AutoFarmSettingsSection_IgnoreCoins",
+    local InstantCollect = AutoFarmsSettingsSection:AddToggle({
+        Name = "Instant Collect",
+        Flag = "AutoFarmTab_AutoFarmsSettingsSection_InstantCollect",
         Enabled = false,
         Locked = false,
         Callback = function(val)
-            getgenv().IgnoreCoins = val
+            getgenv().InstantCollect = val
 
-            if getgenv().IgnoreCoins then
-                PetSDK.Blacklisted[PetSDK.Types.Coin] = true
-            else
-                PetSDK.Blacklisted[PetSDK.Types.Coin] = nil
-            end
+            task.spawn(function()
+                while getgenv().InstantCollect do
+                    if Client.Character == nil then
+                        task.wait(1 / 250)
+
+                        continue
+                    end
+
+                    local Orbs = PetSDK.GetOrbs()
+
+                    if #Orbs > 0 then
+                        for _, Orb in ipairs(Orbs) do
+                            PetSDK.CollectOrb(Orb)
+                        end
+                    end
+
+                    task.wait(1 / 250)
+                end
+            end)
         end
     })
 
-    local IgnoreChests = AutoFarmSettingsSection:AddToggle({
-        Name = "Ignore Chests",
-        Flag = "AutoFarmTab_AutoFarmSettingsSection_IgnoreChests",
+    local CollectLootBags = AutoFarmsSettingsSection:AddToggle({
+        Name = "Collect Lootbags",
+        Flag = "AutoFarmTab_AutoFarmsSettingsSection_ColledtLootbags",
         Enabled = false,
         Locked = false,
         Callback = function(val)
-            getgenv().IgnoreChests = val
+            getgenv().CollectLootbags = val
 
-            if getgenv().IgnoreChests then
-                PetSDK.Blacklisted[PetSDK.Types.Chest] = true
-            else
-                PetSDK.Blacklisted[PetSDK.Types.Chest] = nil
-            end
+            task.spawn(function()
+                while getgenv().CollectLootbags do
+                    if Client.Character == nil then
+                        task.wait(1 / 250)
+
+                        continue
+                    end
+
+                    local Root = Client.Character:FindFirstChild("HumanoidRootPart")
+
+                    local Lootbags = PetSDK.GetLootBags()
+
+                    if #Lootbags > 0 then
+                        for _, LootBag in ipairs(Lootbags) do
+                            if (LootBag.Position - (Root ~= nil and Root.Position or Camera.CFrame.p)).Magnitude <= 150 then
+                                PetSDK.CollectLootBag(LootBag)
+                            end
+                        end
+                    end
+
+                    task.wait(1 / 250)
+                end
+            end)
         end
     })
 
-    local IgnoreDiamonds = AutoFarmSettingsSection:AddToggle({
-        Name = "Ignore Diamonds",
-        Flag = "AutoFarmTab_AutoFarmSettingsSection_IgnoreDiamonds",
-        Enabled = false,
-        Locked = false,
-        Callback = function(val)
-            getgenv().IgnoreDiamonds = val
-
-            if getgenv().IgnoreDiamonds then
-                PetSDK.Blacklisted[PetSDK.Types.Diamond] = true
-            else
-                PetSDK.Blacklisted[PetSDK.Types.Diamond] = nil
-            end
-        end
-    })
-
-    local StatsTracker = AutoFarmSettingsSection:AddToggle({
+    local StatsTracker = AutoFarmsSettingsSection:AddToggle({
         Name = "Stats Tracker",
-        Flag = "AutoFarmTab_AutoFarmSettingsSection_StatsTracker",
+        Flag = "AutoFarmTab_AutoFarmsSettingsSection_StatsTracker",
         Enabled = false,
         Locked = false,
         Callback = function(val)
@@ -830,6 +846,54 @@ do
                 end
 
                 table.clear(getgenv().MyTable)
+            end
+        end
+    })
+
+    local IgnoreCoins = AutoFarmsSettingsSection:AddToggle({
+        Name = "Ignore Coins",
+        Flag = "AutoFarmTab_AutoFarmsSettingsSection_IgnoreCoins",
+        Enabled = false,
+        Locked = false,
+        Callback = function(val)
+            getgenv().IgnoreCoins = val
+
+            if getgenv().IgnoreCoins then
+                PetSDK.Blacklisted[PetSDK.Types.Coin] = true
+            else
+                PetSDK.Blacklisted[PetSDK.Types.Coin] = nil
+            end
+        end
+    })
+
+    local IgnoreChests = AutoFarmsSettingsSection:AddToggle({
+        Name = "Ignore Chests",
+        Flag = "AutoFarmTab_AutoFarmsSettingsSection_IgnoreChests",
+        Enabled = false,
+        Locked = false,
+        Callback = function(val)
+            getgenv().IgnoreChests = val
+
+            if getgenv().IgnoreChests then
+                PetSDK.Blacklisted[PetSDK.Types.Chest] = true
+            else
+                PetSDK.Blacklisted[PetSDK.Types.Chest] = nil
+            end
+        end
+    })
+
+    local IgnoreDiamonds = AutoFarmsSettingsSection:AddToggle({
+        Name = "Ignore Diamonds",
+        Flag = "AutoFarmTab_AutoFarmsSettingsSection_IgnoreDiamonds",
+        Enabled = false,
+        Locked = false,
+        Callback = function(val)
+            getgenv().IgnoreDiamonds = val
+
+            if getgenv().IgnoreDiamonds then
+                PetSDK.Blacklisted[PetSDK.Types.Diamond] = true
+            else
+                PetSDK.Blacklisted[PetSDK.Types.Diamond] = nil
             end
         end
     })
