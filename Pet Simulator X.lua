@@ -1,3 +1,4 @@
+local UserInputService = game:GetService("UserInputService")
 do
     --[
     --Pet Simulator X
@@ -65,6 +66,8 @@ do
 
     local Tables = {}
     local PetSDK = {}
+    local Worlds = {}
+    local Areas = {}
 
     local GameNetwork
     local GameData
@@ -548,6 +551,18 @@ do
         end
     end
 
+    local RawTeleportData = PetSDK.GetTeleportsRaw()
+
+    for WorldName, WorldPlace in pairs(RawTeleportData.Worlds) do
+        table.insert(Worlds, tostring(WorldName))
+    end
+
+    for AreaName, AreaWorld in pairs(RawTeleportData.Areas) do
+        table.insert(Areas, tostring(AreaName))
+    end
+
+    local AllEggs = PetSDK.GetAllEggs()
+
     getgenv().UpdateCache.PlayerController = function()
         if Client then
             if Client.Character then
@@ -661,7 +676,7 @@ do
 
                                                 if CoinType ~= nil then
                                                     if PetSDK.IsBlacklisted(tostring(CoinType)) == false then
-                                                        PetSDK.CollectCoin(Coin, getgenv().AllPets)
+                                                        PetSDK.CollectCoin(Coin, true)
 
                                                         break
                                                     end
@@ -677,16 +692,6 @@ do
                     task.wait(1 / 50)
                 end
             end)
-        end
-    })
-
-    local UseAllPets = AutoFarmsSection:AddToggle({
-        Name = "Use All Pets",
-        Flag = "sdfd",
-        Enabled = false,
-        Locked = false,
-        Callback = function(val)
-            getgenv().AllPets = val
         end
     })
 
@@ -923,6 +928,39 @@ do
         Side = "Left"
     })
 
+    local AutoHatch = EggsSection:AddToggle({
+        Name = "Auto Hatch",
+        Flag = "PetsTab_EggsSection_AutoHatch",
+        Enabled = false,
+        Locked = false,
+        Callback = function(val)
+            getgenv().AutoHatch = val
+
+            task.spawn(function()
+                while getgenv().AutoHatch == true and GameNetwork ~= nil do
+                    if table.find(AllEggs, tostring(getgenv().SelectEgg)) then
+                        GameNetwork.Invoke("Buy Egg", getgenv().SelectEgg, false)
+                    end
+
+                    task.wait(1 / 100)
+                end
+            end)
+        end
+    })
+
+    local SelectEgg = EggsSection:AddSearchBox({
+        Name = "Select Egg",
+        Flag = "PetsTab_EggsSection_SelectEgg",
+        Sort = false,
+        MultiSelect = false,
+        List = AllEggs,
+        Callback = function(val)
+            if table.find(AllEggs, tostring(val)) then
+                getgenv().SelectEgg = tostring(val)
+            end
+        end
+    })
+
     --[
     --Player Tab
     --]
@@ -931,11 +969,92 @@ do
         Name = "Player"
     })
 
-    --Others Section
+    --Player Section
 
-    local OthersSection = PlayerTab:CreateSection({
-        Name = "Others",
+    local PlayerSection = PlayerTab:CreateSection({
+        Name = "Player",
+        Side = "Left"
+    })
+
+    local InfiniteJump = PlayerSection:AddToggle({
+        Name = "Infinite Jump",
+        Flag = "PlayerTab_PlayerSection_InfiniteJump",
+        Enabled = false,
+        Locked = false,
+        Callback = function(val)
+            getgenv().InfiniteJump = val
+
+            UserInputService.JumpRequest:Connect(function()
+                if getgenv().InfiniteJump then
+                    Client.Character:FindFirstAncestorOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+                end
+            end)
+        end
+    })
+
+    local WalkSpeed = PlayerSection:AddSlider({
+        Name = "Walk Speed",
+        Flag = "PlayerTab_PlayerSection_WalkSpeed",
+        Format = "Walk Speed: %s",
+        Value = 16,
+        Min = 0,
+        Max = 500,
+        IllegalInput = false,
+        CustomInput = {
+            IllegalInput = false
+        },
+        Callback = function(val)
+            Client.Character.Humanoid.WalkSpeed = val
+        end
+    })
+
+    local JumpPower = PlayerSection:AddSlider({
+        Name = "Jump Power",
+        Flag = "PlayerTab_PlayerSection_JumpPower",
+        Format = "Jump Power: %s",
+        Value = 50,
+        Min = 0,
+        Max = 500,
+        IllegalInput = false,
+        CustomInput = {
+            IllegalInput = false
+        },
+        Callback = function(val)
+            Client.Character.Humanoid.JumpPower = val
+        end
+    })
+
+    --Teleports Section
+
+    local TeleportsSection = PlayerTab:CreateSection({
+        Name = "Teleports",
         Side = "Right"
+    })
+
+    local WorldsTeleport = TeleportsSection:AddSearchBox({
+        Name = "Worlds",
+        Flag = "PlayerTab_TeleportsSection_WorldsTeleport",
+        Sort = false,
+        MultiSelect = false,
+        List = Worlds,
+        Callback = function(val)
+            if table.find(Worlds, val) then
+                PetSDK.Teleport(tostring(val), "World")
+            end
+        end
+    })
+
+    local AreasTeleport = TeleportsSection:AddSearchBox({
+        Name = "Areas",
+        Flag = "PlayerTab_TeleportsSection_AreasTeleport",
+        Sort = false,
+        MultiSelect = false,
+        List = Areas,
+        Callback = function(val)
+            if table.find(Areas, val) then
+                PetSDK.Teleport(tostring(val), "Area")
+            end
+        end
     })
 
     --[
@@ -995,20 +1114,6 @@ do
             end
         end)
     end
-
-    Notification.Notify("Break-Skill Hub - V1", "<b><font color=\"rgb(255, 30, 30)\">Successfully loaded script for</font> <font color=\"rgb(30, 255, 30)\">" .. MarketplaceService:GetProductInfo(game.PlaceId).Name .. "</font><font color=\"rgb(255, 30, 30)\">!</font></b>", "rbxassetid://7771536804", {
-        Duration = 10,
-        TitleSettings = {
-            TextXAlignment = Enum.TextXAlignment.Left,
-            Font = Enum.Font.SourceSansBold
-        },
-        GradientSettings = {
-            GradientEnabled = false,
-            SolidColorEnabled = true,
-            SolidColor = Color3.fromRGB(255, 30, 30),
-            Retract = true
-        }
-    })
 
     getgenv()["BreakSkill_PSX_Loaded"] = true
     getgenv()["BreakSkill_Loaded"] = true
