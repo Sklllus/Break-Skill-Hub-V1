@@ -37,15 +37,24 @@ local Workspace = game:GetService("Workspace")
 local Client = Players.LocalPlayer
 
 local Camera = workspace:WaitForChild("Camera", 5)
+local GameFramework = ReplicatedStorage:WaitForChild("Framework", 5)
+local GameLibrary = GameFramework:WaitForChild("Library", 5)
+local PlayerScripts = Client:WaitForChild("PlayerScripts", 5)
+local GameScripts_V1 = PlayerScripts:WaitForChild("Scripts", 5)
+local GameScripts_V2 = GameScripts_V1:WaitForChild("Game", 5)
+local OrbsClient = GameScripts_V2:WaitForChild("Orbs", 5)
+
+local GameLibrarySuccess, GameLibraryContents = pcall(require, GameLibrary)
 
 getgenv().UpdateLoop = type(getgenv().UpdateLoop) == "boolean" and getgenv().UpdateLoop or false
 getgenv().UpdateCache = type(getgenv().UpdateCache) == "table" and getgenv().UpdateCache or {}
 getgenv().GameConnections = type(getgenv().GameConnections) == "table" and getgenv().GameConnections or {}
 
-local Save = require(ReplicatedStorage.Framework.Library).Save.Get
-local Commas = require(ReplicatedStorage.Framework.Library).Functions.Commas
+local Save = require(GameLibrary).Save.Get
+local Commas = require(GameLibrary).Functions.Commas
 
 local __THINGS = Workspace["__THINGS"]
+local __MAP = Workspace["__MAP"]
 
 local PlrWalk = Client ~= nil and Client.Character ~= nil and Client.Character:FindFirstChild("Humanoid") and Client.Character.Humanoid.WalkSpeed or 0
 local PlrJump = Client ~= nil and Client.Character ~= nil and Client.Character:FindFirstChild("Humanoid") and Client.Character.Humanoid.JumpPower or 0
@@ -58,22 +67,32 @@ local PetSDK = {}
 local GameNetwork
 local GameData
 
-for _, ggc in pairs(getgc(true)) do
-    if type(ggc) == "table" then
-        if rawget(ggc, "Network") then
-            GameNetwork = ggc.Network
+for _, GameGC in pairs(getgc(true)) do
+    if type(GameGC) == "table" then
+        if rawget(GameGC, "Network") then
+            GameNetwork = GameGC.Network
         end
 
-        if rawget(ggc, "Save") then
-            if type(ggc.Save) == "table" then
-                GameData = ggc.Save
+        if rawget(GameGC, "Save") then
+            if type(GameGC.Save) == "table" then
+                if rawget(GameGC.Save, "Get") then
+                    GameData = GameGC.Save
+                end
             end
         end
     end
 end
 
+if not GameLibrarySuccess then
+    Client:Kick("\n[Break-Skill Hub - V1]:\n[Game Error]:\nFailed to get game library!\nContact with script developer on our discord!\ndiscord.gg/BtXYGMemTs (Copied)")
+
+    setclipboard("discord.gg/BtXYGMemTs")
+
+    return
+end
+
 if GameNetwork == nil then
-    Client:Kick("\n[Break-Skill Hub - V1]:\n[Game Error]:\nFailed to get game data!\nContact with script developer on our discord!\ndiscordd.gg/BtXYGMemTs (Copied)")
+    Client:Kick("\n[Break-Skill Hub - V1]:\n[Game Error]:\nFailed to get game data!\nContact with script developer on our discord!\ndiscord.gg/BtXYGMemTs (Copied)")
 
     setclipboard("discord.gg/BtXYGMemTs")
 
@@ -109,21 +128,13 @@ local function Get(v)
 end
 
 do
-    PetSDK.EquippedPets = {}
-    PetSDK.CoinsCache = {}
-    PetSDK.ItemTypeCache = {}
-    PetSDK.Blacklisted = {}
-
-    PetSDK.Types = {
-        Coin = "Coin",
-        Orb = "Orb",
-        Lootbag = "LootBag",
-        Diamond = "Diamond",
-        Chest = "Chest"
+    local TeleportsData = {
+        Worlds = {},
+        Areas = {}
     }
 
-    PetSDK.CoinCacheTime = 999999
-    PetSDK.EquippedPetsTime = 999999
+    local OldOwnFunction = nil
+    local OrbEnv = nil
 
     local ChestMeshIDs = (function()
         local Data = {}
@@ -142,6 +153,64 @@ do
 
         return Data
     end)()
+
+    local Teleports = (function()
+        for I, V in pairs(GameLibraryContents.Directory.Areas) do
+            if V.world ~= nil and V.world ~= "" then
+                if not TeleportsData.Worlds[tostring(V.world)] then
+                    TeleportsData.Worlds[tostring(V.world)] = tostring(V.world)
+                end
+
+                if not TeleportsData.Areas[tostring(I)] then
+                    TeleportsData.Areas[tostring(I)] = tostring(V.world)
+                end
+            end
+        end
+
+        return TeleportsData
+    end)()
+
+    function GetCoinCache()
+        local CoinData = __THINGS and __THINGS:FindFirstChild("Coins") and __THINGS.Coins:GetChildren() or {}
+
+        for _, Object in ipairs(CoinData) do
+            PetSDK.GetType(Object)
+        end
+
+        return CoinData
+    end
+
+    PetSDK.CoinsCache = {}
+    PetSDK.ItemTypeCache = {}
+    PetSDK.EquippedPets = {}
+    PetSDK.Blacklisted = {}
+
+    PetSDK.Types = {
+        Coin = "Coin",
+        Orb = "Orb",
+        Lootbag = "LootBag",
+        Diamond = "Diamond",
+        Chest = "Chest"
+    }
+
+    PetSDK.CoinCacheTime = 999999
+    PetSDK.EquippedPetsTime = 999999
+
+    PetSDK.LoadMap = function(MapName)
+        if workspace:FindFirstChild("__MAP") then
+            workspace:FindFirstChild("__MAP"):Destroy()
+        end
+    end
+
+    PetSDK.FreeGamepasses = function()
+        if GameLibrarySuccess then
+            if OldOwnFunction == nil then
+                OldOwnFunction = hookfunction(GameLibraryContents.Gamepasses.Owns, function(...)
+                    return true
+                end)
+            end
+        end
+    end
 
     PetSDK.GetAllPets = function()
         local Pets = {}
@@ -204,15 +273,19 @@ do
                 end)() or {[1] = EquippedPets[1].PetID}
 
                 if #Pets > 0 then
-                    local JoinCallResult = GameNetwork.Invoke("Join Coin", Coin.Name, Pets)
+                    local JoinCallResult = GameNetwork.Invoke("Join Coin", Coin.Name, Pets);
 
                     for PetIndex, PetId in ipairs(Pets) do
-                        GameNetwork.Fire("Change Pet Target", PetId, "Coin", Coin:GetAttribute("ID"))
-                        GameNetwork.Fire("Farm Coin", Coin.Name, PetId)
+                        GameNetwork.Fire("Change Pet Target", PetId, "Coin", Coin:GetAttribute("ID"));
+                        GameNetwork.Fire("Farm Coin", Coin.Name, PetId);
                     end
                 end
             end
         end
+    end
+
+    PetSDK.GetOrbs = function()
+        return __THINGS and __THINGS:FindFirstChild("Orbs") and __THINGS.Orbs:GetChildren() or {}
     end
 
     PetSDK.IsOrb = function(Object)
@@ -230,6 +303,30 @@ do
         return Check2
     end
 
+    PetSDK.CollectOrb = function(Orb)
+        if PetSDK.IsOrb(Orb) and GameNetwork ~= nil then
+            if OrbsClient then
+                if OrbsClient:IsA("LocalScript") then
+                    if OrbEnv == nil then
+                        local OrbScriptEnvSuccess, OrbScriptEnv = pcall(getsenv, OrbsClient)
+
+                        if OrbScriptEnvSuccess then
+                            OrbEnv = OrbScriptEnv
+                        end
+                    end
+
+                    if OrbEnv ~= nil then
+                        return OrbEnv.Collect(Orb)
+                    end
+                end
+            end
+        end
+    end
+
+    PetSDK.GetLootBags = function()
+        return __THINGS and __THINGS:FindFirstChild("Lootbags") and __THINGS.Lootbags:GetChildren() or {}
+    end
+
     PetSDK.IsLootBag = function(Object)
         if PetSDK.ItemTypeCache[Object] then
             return PetSDK.ItemTypeCache[Object] == PetSDK.Types.Lootbag and true or false
@@ -245,6 +342,14 @@ do
         end
 
         return Check2 or Check3 or Check4
+    end
+
+    PetSDK.CollectLootBag = function(LootBag)
+        if PetSDK.IsLootBag(LootBag) and GameNetwork ~= nil then
+            GameNetwork.Fire("Collect Lootbag", LootBag:GetAttribute("ID"), LootBag.CFrame.p)
+
+            LootBag:Destroy()
+        end
     end
 
     PetSDK.IsDiamond = function(Object)
@@ -312,14 +417,132 @@ do
         return PetSDK.Blacklisted[Type] ~= nil and true or false
     end
 
-    function GetCoinCache()
-        local CoinData = __THINGS and __THINGS:FindFirstChild("Coins") and __THINGS.Coins:GetChildren() or {}
+    PetSDK.RedeemFreeGifts = function()
+        if GameLibrarySuccess and GameNetwork ~= nil then
+            for I, V in pairs(GameLibraryContents.Directory.FreeGifts) do
+                task.spawn(function()
+                    GameNetwork.Invoke("Redeem Free Gift", I);
+                end)
+            end
+        end
+    end
 
-        for _, Object in ipairs(CoinData) do
-            PetSDK.GetType(Object)
+    PetSDK.GetAllEggs = function()
+        local Data = {}
+
+        if GameLibrarySuccess then
+            for I, _ in pairs(GameLibraryContents.Directory.Eggs) do
+                table.insert(Data, tostring(I))
+            end
         end
 
-        return CoinData
+        return Data
+    end
+
+    PetSDK.GetTeleportsRaw = function()
+        return Teleports
+    end
+
+    PetSDK.GetMapTeleports = function()
+        return __MAP and __MAP:FindFirstChild("Teleports") and __MAP.Teleports or "NONE"
+    end
+
+    PetSDK.GetCoinsFolder = function()
+        return __THINGS and __THINGS:FindFirstChild("Coins") and __THINGS.Coins
+    end
+
+    PetSDK.GetOrbsFolder = function()
+        return __THINGS and __THINGS:FindFirstChild("Orbs") and __THINGS.Orbs
+    end
+
+    PetSDK.GetLootbagsFolder = function()
+        return __THINGS and __THINGS:FindFirstChild("Lootbags") and __THINGS.Lootbags
+    end
+
+    PetSDK.MapLoader = function(AreaName)
+        if AreaName == "Trading Plaza" then
+            AreaName = "Spawn"
+        end
+
+        GameNetwork.Fire("Request World", AreaName)
+
+        while not Client.PlayerGui:FindFirstChild("__MAP") do
+            GameLibraryContents.RenderStepped()
+        end
+
+        Client.Character.HumanoidRootPart.Anchored = true
+
+        if __MAP then
+            __MAP:Destroy()
+        end
+
+        PetSDK.GetCoinsFolder():ClearAllChildren()
+        PetSDK.GetOrbsFolder():ClearAllChildren()
+        PetSDK.GetLootbagsFolder():ClearAllChildren()
+
+        local NewMapFolder = Client.PlayerGui:WaitForChild("__MAP", 5)
+        local NewMap = NewMapFolder:WaitForChild("MAP", 5)
+
+        if NewMap then
+            local WorldData = GameLibraryContents.Directory.Worlds[AreaName];
+
+            if not WorldData then return warn("World data not found!") end
+
+            if NewMap:FindFirstChild("Spawns") then
+                NewMap.Spawns:Destroy()
+            end
+
+            local MapDebris = GameLibraryContents.Debris:FindFirstChild("__MAPDEBRIS")
+
+            if not MapDebris then
+                MapDebris = Instance.new("Folder")
+                MapDebris.Name = "__MAPDEBRIS"
+                MapDebris.Parent = u1.Debris
+            else
+                MapDebris:ClearAllChildren();
+            end
+
+            NewMap.Name = "__MAP"
+            NewMap.Parent = workspace
+        end
+    end
+
+    PetSDK.Teleport = function(Place, TeleportType)
+        if GameLibrarySuccess and Client.Character then
+            task.spawn(function()
+                local RawData = PetSDK.GetTeleportsRaw()
+
+                local TP_DATA = RawData.Worlds[tostring(Place)] or RawData.Areas[tostring(Place)]
+
+                pcall(function()
+                    GameLibraryContents.WorldCmds.Load(TP_DATA)
+                end)
+
+                if TeleportType == "Area" then
+                    local TeleportsFolder = PetSDK.GetMapTeleports()
+
+                    local TeleportCheck = TeleportsFolder ~= "NONE" and typeof(TeleportsFolder) == "Instance" and TeleportsFolder:FindFirstChild(tostring(Place)) or nil
+
+                    repeat
+                        TeleportsFolder = PetSDK.GetMapTeleports()
+
+                        TeleportCheck = TeleportsFolder ~= "NONE" and typeof(TeleportsFolder) == "Instance" and TeleportsFolder:FindFirstChild(tostring(Place)) or nil
+
+                        task.wait(1 / 10000)
+                    until TeleportCheck ~= nil and TeleportCheck ~= "NONE"
+
+                    if TeleportCheck ~= nil then
+                        if Client.Character then
+                            local Humanoid = Client.Character:FindFirstChild("Humanoid")
+
+                            if Humanoid then
+                                Client.Character:SetPrimaryPartCFrame(TeleportCheck.CFrame + Vector3.new(0, Humanoid.HipHeight + 1, 0));
+                            end
+                        end
+                    end
+                end
+            end)
+        end
     end
 end
 
