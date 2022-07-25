@@ -661,7 +661,7 @@ do
 
                                                 if CoinType ~= nil then
                                                     if PetSDK.IsBlacklisted(tostring(CoinType)) == false then
-                                                        PetSDK.CollectCoin(Coin, false)
+                                                        PetSDK.CollectCoin(Coin, getgenv().AllPets)
 
                                                         break
                                                     end
@@ -677,6 +677,16 @@ do
                     task.wait(1 / 50)
                 end
             end)
+        end
+    })
+
+    local UseAllPets = AutoFarmsSection:AddToggle({
+        Name = "Use All Pets",
+        Flag = "sdfd",
+        Enabled = false,
+        Locked = false,
+        Callback = function(val)
+            getgenv().AllPets = val
         end
     })
 
