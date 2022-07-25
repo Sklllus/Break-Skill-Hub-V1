@@ -661,7 +661,7 @@ do
 
                                                 if CoinType ~= nil then
                                                     if PetSDK.IsBlacklisted(tostring(CoinType)) == false then
-                                                        PetSDK.CollectCoin(Coin, true)
+                                                        PetSDK.CollectCoin(Coin, false)
 
                                                         break
                                                     end
