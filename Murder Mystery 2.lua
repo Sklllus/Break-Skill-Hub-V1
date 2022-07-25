@@ -3,7 +3,6 @@
 --]
 
 getgenv()["Use_BreakSkill_Universal"] = false
-getgenv()["BreakSkill_Loaded"] = true
 
 --[
 --UI Library
@@ -32,7 +31,19 @@ local Workspace = game:GetService("Workspace")
 
 local Client = Players.LocalPlayer
 
+local Murderer, Sheriff
+
+local Roles = {}
 local Acc = {}
+
+local Colors = {
+    Innocent = Color3.fromRGB(0, 255, 0),
+    Murderer = Color3.fromRGB(255, 0, 0),
+    Sheriff = Color3.fromRGB(0, 0, 255),
+    Hero = Color3.fromRGB(255, 255, 0),
+    Unknown = Color3.fromRGB(55, 55, 55),
+    Gun = Color3.fromRGB(255, 255, 0)
+}
 
 local Method = "Tween"
 
@@ -180,6 +191,53 @@ local function GetClosestCoin()
                 end
             end
         end
+    end
+end
+
+local function UpdateRole(player, info)
+    if player then
+        local Role = typeof(info) == "table" and info.Role or info
+        local RoleColor = Colors.Unknown
+
+        if Role == "Murderer" then
+            Murderer = player
+
+            Roles[player] = "Murderer"
+
+            RoleColor = Colors.Murderer
+        elseif Role == "Sheriff" then
+            Sheriff = player
+
+            Roles[player] = "Sheriff"
+
+            RoleColor = Colors.Sheriff
+        elseif Role == "Hero" then
+            Sheriff = player
+
+            Roles[player] = "Hero"
+
+            RoleColor = Colors.Hero
+        elseif Role == "Innocent" then
+            if Murderer == player then
+                Murderer = nil
+            elseif Sheriff == player then
+                Sheriff = nil
+            end
+
+            Roles[player] = "Innocent"
+
+            RoleColor = Colors.Innocent
+        else
+            Roles[player] = "Unknown"
+        end
+    end
+end
+
+local function ManualUpdate()
+    local Data = ReplicatedStorage.GetPlayerData:InvokeServer()
+
+    for i, v in ipairs(Players:GetPlayers()) do
+        pcall(UpdateRole, v, Data[v.Name])
     end
 end
 
@@ -565,6 +623,18 @@ local ReJoin = OthersSection:AddButton({
 
 --XD
 
+RunService.Stepped:Connect(function()
+    UpdateRole(Client)
+
+    if Murderer == Client then
+        Role:Set("Your Role: Murderer")
+    elseif Sheriff == Client then
+        Role:Set("Your Role: Sheriff")
+    else
+        Role:Set("Your Role: Innocent")
+    end
+end)
+
 spawn(function()
     while RunService.RenderStepped:Wait() do
         if Client.Character and Client.Character:FindFirstChild("Humanoid") then
@@ -656,18 +726,5 @@ OldNameCall = hookmetamethod(game, "__namecall", function(self, ...)
     return OldNameCall(self, ...)
 end)
 
-Notification.Notify("Break-Skill Hub - V1", "<b><font color=\"rgb(255, 30, 30)\">Successfully loaded script for</font> <font color=\"rgb(30, 255, 30)\">" .. MarketplaceService:GetProductInfo(game.PlaceId).Name .. "</font><font color=\"rgb(255, 30, 30)\">!</font></b>", "rbxassetid://7771536804", {
-    Duration = 10,
-    TitleSettings = {
-        TextXAlignment = Enum.TextXAlignment.Left,
-        Font = Enum.Font.SourceSansBold
-    },
-    GradientSettings = {
-        GradientEnabled = false,
-        SolidColorEnabled = true,
-        SolidColor = Color3.fromRGB(255, 30, 30),
-        Retract = true
-    }
-})
-
 getgenv()["BreakSkill_MM2_Loaded"] = true
+getgenv()["BreakSkill_Loaded"] = true
