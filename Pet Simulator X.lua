@@ -629,6 +629,48 @@ local AutoFarm = AutoFarmsSection:AddToggle({
     Locked = false,
     Callback = function(val)
         getgenv().AutoFarm = val
+
+        task.spawn(function()
+            while getgenv().AutoFarm == true do
+                if Client.Character == nil then
+                    task.wait(1 / 50)
+
+                    continue
+                end
+
+                local Root = Client.Character:FindFirstChild("HumanoidRootPart")
+
+                if #PetSDK.EquippedPets > 0 then
+                    local CanProceed = true
+
+                    if CanProceed then
+                        local Coins = PetSDK.GetCoins()
+
+                        if #Coins > 0 then
+                            for _, Coin in ipairs(Coins) do
+                                if Coin ~= nil then
+                                    if Coin:FindFirstChild("Coin") then
+                                        if (Coin.Coin.Position - (Root ~= nil and Root.Position or Camera.CFrame.p)).Magnitude <= 150 then
+                                            local CoinType = PetSDK.GetType(Coin)
+
+                                            if CoinType ~= nil then
+                                                if PetSDK.IsBlacklisted(tostring(CoinType)) == false then
+                                                    PetSDK.CollectCoin(Coin, true)
+
+                                                    break
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+
+                task.wait(1 / 50)
+            end
+        end)
     end
 })
 
@@ -873,48 +915,6 @@ if not getgenv().UpdateLoop then
         end
     end)
 end
-
-task.spawn(function()
-    while getgenv().AutoFarm == true do
-        if Client.Character == nil then
-            task.wait(1 / 50)
-
-            continue
-        end
-
-        local Root = Client.Character:FindFirstChild("HumanoidRootPart")
-
-        if #PetSDK.EquippedPets > 0 then
-            local CanProceed = true
-
-            if CanProceed then
-                local Coins = PetSDK.GetCoins()
-
-                if #Coins > 0 then
-                    for _, Coin in ipairs(Coins) do
-                        if Coin ~= nil then
-                            if Coin:FindFirstChild("Coin") then
-                                if (Coin.Coin.Position - (Root ~= nil and Root.Position or Camera.CFrame.p)).Magnitude <= 150 then
-                                    local CoinType = PetSDK.GetType(Coin)
-
-                                    if CoinType ~= nil then
-                                        if PetSDK.IsBlacklisted(tostring(CoinType)) == false then
-                                            PetSDK.CollectCoin(Coin, true)
-
-                                            break
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        task.wait(1 / 50)
-    end
-end)
 
 Notification.Notify("Break-Skill Hub - V1", "<b><font color=\"rgb(255, 30, 30)\">Successfully loaded script for</font> <font color=\"rgb(30, 255, 30)\">" .. MarketplaceService:GetProductInfo(game.PlaceId).Name .. "</font><font color=\"rgb(255, 30, 30)\">!</font></b>", "rbxassetid://7771536804", {
 	Duration = 10,
