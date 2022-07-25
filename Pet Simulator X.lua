@@ -130,10 +130,10 @@ local ChestMeshIDs = (function()
     local CoinAssets = ReplicatedStorage:FindFirstChild("CoinAssets", true)
 
     if CoinAssets then
-        for _, ca in ipairs(CoinAssets:GetDescendants()) do
-            if ca:IsA("MeshPart") then
-                if tostring(ca):lower():find("chest") then
-                    table.insert(Data, tostring(ca.MeshId))
+        for _, ChestAsset in ipairs(CoinAssets:GetDescendants()) do
+            if ChestAsset:IsA("MeshPart") then
+                if tostring(ChestAsset):lower():find("chest") then
+                    table.insert(Data, tostring(ChestAsset.MeshId))
                 end
             end
         end
@@ -150,13 +150,13 @@ PetSDK.GetAllPets = function()
 
         if type(PlayerData) == "table" then
             if type(PlayerData.Pets) == "table" then
-                for _, p in ipairs(PlayerData.Pets) do
-                    if p.nk ~= nil then
+                for _, V in ipairs(PlayerData.Pets) do
+                    if V.nk ~= nil then
                         table.insert(Pets, {
-                            PetName = p.nk,
-                            PetEquipped = p.e,
-                            PetID = p.uid,
-                            PetPower = p.powers or {}
+                            PetName = V.nk,
+                            PetEquipped = V.e,
+                            PetID = V.uid,
+                            PetPowers = V.powers or {}
                         })
                     end
                 end
@@ -172,10 +172,10 @@ PetSDK.GetEquippedPets = function()
 
     local PetResults = PetSDK.GetAllPets()
 
-    for _, pd in ipairs(type(PetResults) == "table" and PetResults or {}) do
-        if type(pd) == "table" then
-            if pd.PetEquipped == true then
-                table.insert(Pets, pd)
+    for _, PetData in ipairs(type(PetResults) == "table" and PetResults or {}) do
+        if type(PetData) == "table" then
+            if PetData.PetEquipped == true then
+                table.insert(Pets, PetData)
             end
         end
     end
@@ -187,154 +187,135 @@ PetSDK.GetCoins = function()
     return type(PetSDK.CoinsCache) == "table" and PetSDK.CoinsCache or {}
 end
 
-PetSDK.CollectCoin = function(coin, useAllPets)
+PetSDK.CollectCoin = function(Coin, UseAllPets)
     local EquippedPets = PetSDK.EquippedPets
 
     if GameNetwork ~= nil then
         if #EquippedPets > 0 then
-            local Pets = useAllPets == true and (function()
+            local Pets = UseAllPets == true and (function()
                 local PetIDs = {}
 
-                for _, pd in ipairs(EquippedPets) do
-                    table.insert(PetIDs, pd.PetID)
+                for _, PetData in ipairs(EquippedPets) do
+                    table.insert(PetIDs, PetData.PetID)
                 end
 
                 return PetIDs
             end)() or {[1] = EquippedPets[1].PetID}
 
             if #Pets > 0 then
-                local JoinCallResult = GameNetwork.Invoke("Join Coin", coin.Name, Pets)
+                local JoinCallResult = GameNetwork.Invoke("Join Coin", Coin.Name, Pets)
 
-                for i, p in ipairs(Pets) do
-                    GameNetwork.Fire("Change Pet Target", p, "Coin", coin:GetAttribute("ID"))
-                    GameNetwork.Fire("Farm Coin", coin.Name, p)
+                for PetIndex, PetId in ipairs(Pets) do
+                    GameNetwork.Fire("Change Pet Target", PetId, "Coin", Coin:GetAttribute("ID"))
+                    GameNetwork.Fire("Farm Coin", Coin.Name, PetId)
                 end
             end
         end
     end
 end
 
-PetSDK.IsOrb = function(object)
-    if PetSDK.ItemTypeCache[object] then
-        return PetSDK.ItemTypeCache[object] == PetSDK.Types.Orb and true or false
+PetSDK.IsOrb = function(Object)
+    if PetSDK.ItemTypeCache[Object] then
+        return PetSDK.ItemTypeCache[Object] == PetSDK.Types.Orb and true or false
     end
 
-    local Check1 = typeof(object) == "Instance" and true or false
-    local Check2 = Check1 == true and object:FindFirstChild("Orb") and true or false
+    local Check1 = typeof(Object) == "Instance" and true or false
+    local Check2 = Check1 == true and Object:FindFirstChild("Orb") and true or false
 
     if Check2 == true then
-        PetSDK.ItemTypeCache[object] = PetSDK.Types.Orb
+        PetSDK.ItemTypeCache[Object] = PetSDK.Types.Orb
     end
 
     return Check2
 end
 
-PetSDK.IsLootBag = function(object)
-    if PetSDK.ItemTypeCache[object] then
-        return PetSDK.ItemTypeCache[object] == PetSDK.Types.Lootbag and true or false
+PetSDK.IsLootBag = function(Object)
+    if PetSDK.ItemTypeCache[Object] then
+        return PetSDK.ItemTypeCache[Object] == PetSDK.Types.Lootbag and true or false
     end
 
-    local Check1 = typeof(object) == "Instance" and true or false
-    local Check2 = Check1 == true and object:IsA("MeshPart") and tostring(object.MeshId) == "rbxassetid://7205419138" and true or false
-    local Check3 = Check1 == true and object:IsA("MeshPart") and tostring(object.MeshId) == "rbxassetid://8159964896" and true or false
-    local Check4 = Check1 == true and object:IsA("MeshPart") and tostring(object.MeshId) == "rbxassetid://8159969008" and true or false
+    local Check1 = typeof(Object) == "Instance" and true or false
+    local Check2 = Check1 == true and Object:IsA("MeshPart") and tostring(Object.MeshId) == "rbxassetid://7205419138" and true or false
+    local Check3 = Check1 == true and Object:IsA("MeshPart") and tostring(Object.MeshId) == "rbxassetid://8159964896" and true or false
+    local Check4 = Check1 == true and Object:IsA("MeshPart") and tostring(Object.MeshId) == "rbxassetid://8159969008" and true or false
 
     if Check2 or Check3 or Check4 then
-        PetSDK.ItemTypeCache[object] = PetSDK.Types.Lootbag
+        PetSDK.ItemTypeCache[Object] = PetSDK.Types.Lootbag
     end
 
     return Check2 or Check3 or Check4
 end
 
-PetSDK.IsDiamond = function(object)
-    if PetSDK.ItemTypeCache[object] then
-        return PetSDK.ItemTypeCache[object] == PetSDK.Types.Diamond and true or false
+PetSDK.IsDiamond = function(Object)
+    if PetSDK.ItemTypeCache[Object] then
+        return PetSDK.ItemTypeCache[Object] == PetSDK.Types.Diamond and true or false
     end
 
-    local Check1 = typeof(object) == "Instance" and true or false
-    local Check2 = Check1 == true and object:FindFirstChild("Coin") and true or false
-    local Check3 = Check2 == true and object.Coin:IsA("MeshPart") and tostring(object.Coin.MeshId) == "rbxassetid://7041620873" and true or false
-    local Check4 = Check2 == true and object.Coin:IsA("MeshPart") and tostring(object.Coin.MeshId) == "rbxassetid://7041621431" and true or false
+    local Check1 = typeof(Object) == "Instance" and true or false
+    local Check2 = Check1 == true and Object:FindFirstChild("Coin") and true or false
+    local Check3 = Check2 == true and Object.Coin:IsA("MeshPart") and tostring(Object.Coin.MeshId) == "rbxassetid://7041620873" and true or false
+    local Check4 = Check2 == true and Object.Coin:IsA("MeshPart") and tostring(Object.Coin.MeshId) == "rbxassetid://7041621431" and true or false
 
     if Check3 or Check4 then
-        PetSDK.ItemTypeCache[object] = PetSDK.Types.Diamond
+        PetSDK.ItemTypeCache[Object] = PetSDK.Types.Diamond
     end
 
-    if Check3 == true then
-        return true
-    end
-
-    if Check4 == true then
-        return true
-    end
+    if Check3 == true then return true end
+    if Check4 == true then return true end
 
     return false
 end
 
-PetSDK.IsChest = function(object)
-    if PetSDK.ItemTypeCache[object] then
-        return PetSDK.ItemTypeCache[object] == PetSDK.Types.Chest and true or false
+PetSDK.IsChest = function(Object)
+    if PetSDK.ItemTypeCache[Object] then
+        return PetSDK.ItemTypeCache[Object] == PetSDK.Types.Chest and true or false
     end
 
-    local Check1 = typeof(object) == "Instance" and true or false
-    local Check2 = Check1 == true and object:FindFirstChild("Coin") and true or false
-    local Check3 = Check2 == true and object.Coin:IsA("MeshPart") and table.find(ChestMeshIDs, tostring(object.Coin.MeshId)) ~= nil and true or false
+    local Check1 = typeof(Object) == "Instance" and true or false
+    local Check2 = Check1 == true and Object:FindFirstChild("Coin") and true or false
+    local Check3 = Check2 == true and Object.Coin:IsA("MeshPart") and table.find(ChestMeshIDs, tostring(Object.Coin.MeshId)) ~= nil and true or false
 
     if Check3 then
-        PetSDK.ItemTypeCache[object] = PetSDK.Types.Chest
+        PetSDK.ItemTypeCache[Object] = PetSDK.Types.Chest
     end
 
     return Check3
 end
 
-PetSDK.IsCoin = function(object)
-    if PetSDK.ItemTypeCache[object] then
-        return PetSDK.ItemTypeCache[object] == PetSDK.Types.Coin and true or false
+PetSDK.IsCoin = function(Object)
+    if PetSDK.ItemTypeCache[Object] then
+        return PetSDK.ItemTypeCache[Object] == PetSDK.Types.Coin and true or false
     end
 
-    local Check1 = typeof(object) == "Instance" and true or false
-    local Check2 = Check1 == true and object:FindFirstChild("Coin") and true or false
+    local Check1 = typeof(Object) == "Instance" and true or false
+    local Check2 = Check1 == true and Object:FindFirstChild("Coin") and true or false
 
-    if Check2 == true and PetSDK.IsChest(object) == false and PetSDK.IsDiamond(object) == false then
-        PetSDK.ItemTypeCache[object] = PetSDK.Types.Coin
+    if Check2 == true and PetSDK.IsChest(Object) == false and PetSDK.IsDiamond(Object) == false then
+        PetSDK.ItemTypeCache[Object] = PetSDK.Types.Coin
     end
 
-    return Check2 == true and PetSDK.IsChest(object) == false and PetSDK.IsDiamond(object) == false and true or false
+    return Check2 == true and PetSDK.IsChest(Object) == false and PetSDK.IsDiamond(Object) == false and true or false
 end
 
-PetSDK.GetType = function(object)
-    if PetSDK.IsCoin(object) == true then
-        return PetSDK.Types.Coin
-    end
-
-    if PetSDK.IsOrb(object) == true then
-        return PetSDK.Types.Orb
-    end
-
-    if PetSDK.IsLootBag(object) == true then
-        return PetSDK.Types.Lootbag
-    end
-
-    if PetSDK.IsDiamond(object) == true then
-        return PetSDK.Types.Diamond
-    end
-
-    if PetSDK.IsChest(object) == true then
-        return PetSDK.Types.Chest
-    end
+PetSDK.GetType = function(Object)
+    if PetSDK.IsCoin(Object) == true then return PetSDK.Types.Coin end
+    if PetSDK.IsOrb(Object) == true then return PetSDK.Types.Orb end
+    if PetSDK.IsLootBag(Object) == true then return PetSDK.Types.Lootbag end
+    if PetSDK.IsDiamond(Object) == true then return PetSDK.Types.Diamond end
+    if PetSDK.IsChest(Object) == true then return PetSDK.Types.Chest end
 
     return nil
 end
 
-PetSDK.IsBlacklisted = function(type)
-    return PetSDK.Blacklisted[type] ~= nil and true or false
+PetSDK.IsBlacklisted = function(Type)
+    return PetSDK.Blacklisted[Type] ~= nil and true or false
 end
 
 local function GetCoinCache()
     local CoinData = __THINGS and __THINGS:FindFirstChild("Coins") and __THINGS.Coins:GetChildren() or {}
 
-    for _, o in ipairs(CoinData) do
-        PetSDK.GetType(o)
+    for _, Object in ipairs(CoinData) do
+        PetSDK.GetType(Object)
     end
 
     return CoinData
@@ -363,13 +344,13 @@ getgenv().UpdateCache.PlayerController = function()
 
         PetSDK.CoinsCache = GetCoinCache()
 
-        for i, v in pairs(PetSDK.ItemTypeCache) do
-            if typeof(i) == "Instance" then
-                if i.Parent == nil then
-                    PetSDK.ItemTypeCache[i] = nil
+        for Index, Value in pairs(PetSDK.ItemTypeCache) do
+            if typeof(Index) == "Instance" then
+                if Index.Parent == nil then
+                    PetSDK.ItemTypeCache[Index] = nil
                 end
             else
-                PetSDK.ItemTypeCache[i] = nil
+                PetSDK.ItemTypeCache[Index] = nil
             end
         end
     end
@@ -612,20 +593,19 @@ local ReJoin = SettingsOthersSection:AddButton({
 if not getgenv().UpdateLoop then
     getgenv().UpdateLoop = true
 
-    RunService.RenderStepped:Connect(function(deltaTime)
-        for _, f in pairs(getgenv().UpdateCache) do
-            if type(f) == "function" then
-                pcall(f, deltaTime)
+    RunService.RenderStepped:Connect(function(_Delta)
+        for _, Function in pairs(getgenv().UpdateCache) do
+            if type(Function) == "function" then
+                pcall(Function, _Delta)
             end
         end
     end)
 end
 
 task.spawn(function()
-    while getgenv().AutoFarm do
+    while getgenv().AutoFarm == true do
         if Client.Character == nil then
             task.wait(1 / 50)
-
             continue
         end
 
@@ -638,15 +618,15 @@ task.spawn(function()
                 local Coins = PetSDK.GetCoins()
 
                 if #Coins > 0 then
-                    for _, c in ipairs(Coins) do
-                        if c ~= nil then
-                            if c:FindFirstChild("Coin") then
-                                if (c.Coin.Position - (Root ~= nil and Root.Position or Camera.CFrame.p)).Magnitude <= 150 then
-                                    local CoinType = PetSDK.GetType(c)
+                    for _, Coin in ipairs(Coins) do
+                        if Coin ~= nil then
+                            if Coin:FindFirstChild("Coin") then
+                                if (Coin.Coin.Position - (Root ~= nil and Root.Position or Camera.CFrame.p)).Magnitude <= 150 then
+                                    local CoinType = PetSDK.GetType(Coin)
 
                                     if CoinType ~= nil then
                                         if PetSDK.IsBlacklisted(tostring(CoinType)) == false then
-                                            PetSDK.CollectCoin(c, true)
+                                            PetSDK.CollectCoin(Coin, true)
 
                                             break
                                         end
